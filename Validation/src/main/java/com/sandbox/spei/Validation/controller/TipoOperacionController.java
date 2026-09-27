@@ -1,12 +1,12 @@
 package com.sandbox.spei.Validation.controller;
 
-
 import com.sandbox.spei.Validation.entity.TipoOperacion;
 import com.sandbox.spei.Validation.service.TipoOperacionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/tipos-operacion")
@@ -20,8 +20,7 @@ public class TipoOperacionController {
 
     @GetMapping
     public ResponseEntity<List<TipoOperacion>> listarTodos() {
-        List<TipoOperacion> tipos = tipoOperacionService.obtenerTodosLosTiposOperacion();
-        return ResponseEntity.ok(tipos);
+        return ResponseEntity.ok(tipoOperacionService.obtenerTodosLosTiposOperacion());
     }
 
     @GetMapping("/{codigo}")

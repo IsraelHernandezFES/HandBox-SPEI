@@ -19,10 +19,8 @@ public class InstitucionController {
 
     @GetMapping
     public ResponseEntity<List<Institucion>> listarTodas() {
-        List<Institucion> instituciones = institucionService.obtenerTodasLasInstituciones();
-        return ResponseEntity.ok(instituciones);
+        return ResponseEntity.ok(institucionService.obtenerTodasLasInstituciones());
     }
-
 
     @GetMapping("/{codigo}")
     public ResponseEntity<Institucion> buscarPorCodigo(@PathVariable Integer codigo) {
@@ -31,25 +29,8 @@ public class InstitucionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
-    @GetMapping("/estado/{estadoOperativo}")
-    public ResponseEntity<List<Institucion>> listarPorEstadoOperativo(@PathVariable String estadoOperativo) {
-        List<Institucion> instituciones = institucionService.obtenerPorEstadoOperativo(estadoOperativo);
-        if (instituciones.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(instituciones);
-    }
-
-    @GetMapping("/{codigo}/puede-enviar")
-    public ResponseEntity<Boolean> validarPuedeEnviar(@PathVariable Integer codigo) {
-        boolean puede = institucionService.puedeEnviarPagos(codigo);
-        return ResponseEntity.ok(puede);
-    }
-
-    @GetMapping("/{codigo}/puede-recibir")
-    public ResponseEntity<Boolean> validarPuedeRecibir(@PathVariable Integer codigo) {
-        boolean puede = institucionService.puedeRecibirPagos(codigo);
-        return ResponseEntity.ok(puede);
+    @GetMapping("/estado-operativo/{estado}")
+    public ResponseEntity<List<Institucion>> listarPorEstadoOperativo(@PathVariable String estado) {
+        return ResponseEntity.ok(institucionService.obtenerPorEstadoOperativo(estado));
     }
 }

@@ -17,14 +17,12 @@ public class EstadoController {
         this.estadoService = estadoService;
     }
 
-  // catalogo de estados
     @GetMapping
     public ResponseEntity<List<Estado>> listarTodos() {
-        List<Estado> estados = estadoService.obtenerTodosLosEstados();
-        return ResponseEntity.ok(estados);
+        return ResponseEntity.ok(estadoService.obtenerTodosLosEstados());
     }
 
-    @GetMapping("/{codigo}")
+    @GetMapping("/codigo/{codigo}")
     public ResponseEntity<Estado> buscarPorCodigo(@PathVariable Short codigo) {
         return estadoService.obtenerEstadoPorCodigo(codigo)
                 .map(ResponseEntity::ok)

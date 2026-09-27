@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ordenes-log")
+@RequestMapping("/api/ordenes-logs")
 public class OrdenLogController {
 
     private final OrdenLogService ordenLogService;
@@ -18,27 +18,17 @@ public class OrdenLogController {
     }
 
     @GetMapping("/orden/{ordenPagoId}")
-    public ResponseEntity<List<OrdenLog>> listarLogsPorOrden(@PathVariable Long ordenPagoId) {
-        List<OrdenLog> logs = ordenLogService.obtenerLogsOrdenadosPorPaso(ordenPagoId);
-        if (logs.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(logs);
+    public ResponseEntity<List<OrdenLog>> listarPorOrdenId(@PathVariable Long ordenPagoId) {
+        return ResponseEntity.ok(ordenLogService.obtenerLogsPorOrden(ordenPagoId));
     }
 
-    @GetMapping("/rastreo/{clave}")
-    public ResponseEntity<List<OrdenLog>> listarLogsPorClaveRastreo(@PathVariable String clave) {
-        List<OrdenLog> logs = ordenLogService.obtenerLogsPorClaveRastreo(clave);
-        if (logs.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(logs);
+    @GetMapping("/orden/{ordenPagoId}/ordenados")
+    public ResponseEntity<List<OrdenLog>> listarOrdenadosPorPaso(@PathVariable Long ordenPagoId) {
+        return ResponseEntity.ok(ordenLogService.obtenerLogsOrdenadosPorPaso(ordenPagoId));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<OrdenLog> buscarPorId(@PathVariable Long id) {
-        return ordenLogService.obtenerLogPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/rastreo/{cveRastreo}")
+    public ResponseEntity<List<OrdenLog>> listarPorClaveRastreo(@PathVariable String cveRastreo) {
+        return ResponseEntity.ok(ordenLogService.obtenerLogsPorClaveRastreo(cveRastreo));
     }
 }
