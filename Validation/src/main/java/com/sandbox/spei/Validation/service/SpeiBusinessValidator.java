@@ -33,8 +33,7 @@ public class SpeiBusinessValidator {
 
         // Regla PRX-003: Validar que la institución exista en el catálogo
         if (request.getCodigoInstitucion() != null) {
-            boolean existeInstitucion = institucionRepository.existsById(Long.valueOf(request.getCodigoInstitucion()));
-
+            boolean existeInstitucion = institucionRepository.existsById(request.getCodigoInstitucion());
             if (!existeInstitucion) {
                 throw new SpeiException(
                         "PRX-003",
@@ -74,8 +73,7 @@ public class SpeiBusinessValidator {
     public void validarVNT(OperacionVNTRequest request) {
         // Regla PRX-003: Validar que la institución exista
         if (request.getCodigoInstitucion() != null) {
-            boolean existeInstitucion = institucionRepository.existsById(Long.valueOf(request.getCodigoInstitucion()));
-
+            boolean existeInstitucion = institucionRepository.existsById(request.getCodigoInstitucion());
             if (!existeInstitucion) {
                 throw new SpeiException(
                         "PRX-003",
