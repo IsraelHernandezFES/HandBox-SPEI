@@ -38,7 +38,8 @@ public class OrdenPago {
     @Column(name = "nombre_ordenante", nullable = false, length = 150)
     private String nombreOrdenante;
 
-    @Column(name = "cuenta_ordenante", nullable = false, length = 18)
+
+    @Column(name = "cuenta_ordenante", length = 18) // Por defecto nullable = true
     private String cuentaOrdenante;
 
 

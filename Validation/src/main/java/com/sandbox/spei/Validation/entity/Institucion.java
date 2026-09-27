@@ -27,11 +27,5 @@ public class Institucion {
     @Builder.Default
     private String estadoOperativo = "NORMAL";
 
-    @CreationTimestamp
-    @Column(name = "fecha_registro", updatable = false)
-    private LocalDateTime fechaRegistro;
 
-    @UpdateTimestamp
-    @Column(name = "fecha_actualizacion")
-    private LocalDateTime fechaActualizacion;
 }
