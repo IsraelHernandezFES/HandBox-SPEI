@@ -41,11 +41,6 @@ public class OrdenPago {
     @Column(name = "cuenta_ordenante", nullable = false, length = 18)
     private String cuentaOrdenante;
 
-    @Column(name = "rfc_ordenante", length = 13)
-    private String rfcOrdenante;
-
-    @Column(name = "tipo_cuenta_ordenante")
-    private Integer tipoCuentaOrdenante;
 
     // Beneficiario
     @Column(name = "nombre_beneficiario", nullable = false, length = 150)
@@ -54,11 +49,6 @@ public class OrdenPago {
     @Column(name = "cuenta_beneficiaria", nullable = false, length = 18)
     private String cuentaBeneficiaria;
 
-    @Column(name = "rfc_beneficiario", length = 13)
-    private String rfcBeneficiario;
-
-    @Column(name = "tipo_cuenta_beneficiaria")
-    private Integer tipoCuentaBeneficiaria;
 
     // Relaciones
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,6 +1,5 @@
 package com.sandbox.spei.Validation.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -27,14 +26,6 @@ public class Institucion {
     @Column(name = "estado_operativo", nullable = false, length = 20)
     @Builder.Default
     private String estadoOperativo = "NORMAL";
-
-    @Column(name = "puede_enviar", nullable = false)
-    @Builder.Default
-    private Boolean puedeEnviar = true;
-
-    @Column(name = "puede_recibir", nullable = false)
-    @Builder.Default
-    private Boolean puedeRecibir = true;
 
     @CreationTimestamp
     @Column(name = "fecha_registro", updatable = false)

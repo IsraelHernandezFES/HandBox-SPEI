@@ -8,13 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface InstitucionRepository extends JpaRepository<Institucion, Long> {
+public interface InstitucionRepository extends JpaRepository<Institucion, Integer> {
 
     Optional<Institucion> findByNombre(String nombre);
 
     List<Institucion> findByEstadoOperativo(String estadoOperativo);
-
-    List<Institucion> findByPuedeEnviarTrue();
-
-    List<Institucion> findByPuedeRecibirTrue();
 }

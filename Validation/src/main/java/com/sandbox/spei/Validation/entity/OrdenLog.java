@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "orden_log", uniqueConstraints = {
         @UniqueConstraint(name = "uk_orden_log_step", columnNames = {"orden_pago_id", "step"})
-        })
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,14 +32,13 @@ public class OrdenLog {
     @JoinColumn(name = "estado_codigo", nullable = false)
     private Estado estado;
 
-    @Column(name = "cve_rastreo", length = 100)
+    @Column(name = "cve_rastreo", length = 50)
     private String cveRastreo;
 
     @CreationTimestamp
     @Column(name = "hora_procesamiento", updatable = false)
     private LocalDateTime horaProcesamiento;
 
-    // Guardado como texto JSON
     @Column(name = "detalle", columnDefinition = "JSON")
     private String detalle;
 

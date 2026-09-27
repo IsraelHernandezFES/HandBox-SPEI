@@ -20,5 +20,6 @@ public interface OrdenPagoRepository extends JpaRepository<OrdenPago, Long> {
 
     List<OrdenPago> findByEstadoActualCodigo(Short codigoEstado);
 
-    List<OrdenPago> findByTipoOperacionCodigo(Integer codigoTipoOperacion);
+    // Tipo corregido de Integer a String
+    List<OrdenPago> findByTipoOperacionCodigo(String codigoTipoOperacion);
 }
