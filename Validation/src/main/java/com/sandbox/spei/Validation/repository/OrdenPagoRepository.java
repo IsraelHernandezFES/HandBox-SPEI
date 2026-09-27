@@ -10,8 +10,9 @@ import java.util.Optional;
 @Repository
 public interface OrdenPagoRepository extends JpaRepository<OrdenPago, Long> {
 
-
     Optional<OrdenPago> findByClaveRastreo(String claveRastreo);
+
+    boolean existsByClaveRastreo(String claveRastreo);
 
     List<OrdenPago> findByCuentaOrdenante(String cuentaOrdenante);
 

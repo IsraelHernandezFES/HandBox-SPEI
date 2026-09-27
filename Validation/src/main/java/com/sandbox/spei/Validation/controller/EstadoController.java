@@ -30,7 +30,7 @@ public class EstadoController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     @GetMapping("/cve/{cve}")
     public ResponseEntity<Estado> buscarPorCve(@PathVariable String cve) {
         return estadoService.obtenerEstadoPorCve(cve)

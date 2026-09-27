@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface InstitucionRepository extends JpaRepository<Institucion, Integer> {
+public interface InstitucionRepository extends JpaRepository<Institucion, Long> {
 
     Optional<Institucion> findByNombre(String nombre);
 
