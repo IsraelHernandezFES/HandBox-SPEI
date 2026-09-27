@@ -21,7 +21,7 @@ public class EstadoController {
     public ResponseEntity<List<Estado>> listarTodos() {
         return ResponseEntity.ok(estadoService.obtenerTodosLosEstados());
     }
-
+// este no se??
     @GetMapping("/codigo/{codigo}")
     public ResponseEntity<Estado> buscarPorCodigo(@PathVariable Short codigo) {
         return estadoService.obtenerEstadoPorCodigo(codigo)
