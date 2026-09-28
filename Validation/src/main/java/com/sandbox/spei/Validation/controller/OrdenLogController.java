@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ordenes-logs")
+@RequestMapping("/api/v1/operaciones-logs")
 public class OrdenLogController {
 
     private final OrdenLogService ordenLogService;
