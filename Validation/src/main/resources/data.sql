@@ -1,4 +1,4 @@
---Institucion
+-- 1. Instituciones
 INSERT INTO institucion (codigo, nombre, estado_operativo)
 VALUES
     (801, 'Banco Praxis Alfa', 'NORMAL'),
@@ -7,13 +7,13 @@ VALUES
     (804, 'Praxis Servicios de Pago', 'NO_BANCARIA'),
     (805, 'Banco Praxis Delta', 'MANTENIMIENTO');
 
---Tipo Operacion
+-- 2. Tipos de Operación
 INSERT INTO tipo_operacion (codigo, nombre, descripcion, particularidad_estructural)
 VALUES
     ('T2T', 'Tercero a tercero', 'Un cliente de una institucion envia dinero a un cliente de otra institucion.', 'Tiene cuenta ordenante y cuenta beneficiaria. Es el caso base.'),
     ('VNT', 'Ventanilla a tercero', 'Una persona deposita efectivo en una sucursal para abonar a la cuenta de un beneficiario en otra.', 'No hay cuenta ordenante. El ordenante se identifica por nombre y documento, y aparece la sucursal como campo obligatorio.');
 
---Estado
+-- 3. Estados Oficiales del Contrato
 INSERT INTO estado (codigo, cve, nombre, descripcion)
 VALUES
     (1, 'S01', 'Recibida', 'La orden de pago fue recibida y registrada.'),

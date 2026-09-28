@@ -59,41 +59,41 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         // 2. Validar Reglas de Negocio cruzadas
         speiBusinessValidator.validarT2T(request);
 
-        // 3. Buscar catálogos
-        Institucion institucion = institucionRepository.findById(request.getCodigoInstitucion())
+// 3. Buscar catálogos (la institución viene dentro del emisor o receptor según el contrato)
+        Integer codigoInst = Integer.parseInt(request.getReceptor().getInstitucion());
+        Institucion institucion = institucionRepository.findById(codigoInst)
                 .orElseThrow(() -> new SpeiException("PRX-003", "Institucion inexistente en el catalogo", HttpStatus.UNPROCESSABLE_ENTITY));
 
         TipoOperacion tipoOp = tipoOperacionRepository.findById("T2T")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Tipo de operacion T2T no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
 
-        Estado estadoRecibido = estadoRepository.findByCve("RECIBIDO")
-                .orElseThrow(() -> new SpeiException("ERR_DB", "Estado RECIBIDO no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
+        Estado estadoRecibido = estadoRepository.findByCve("S01")
+                .orElseThrow(() -> new SpeiException("ERR_DB", "Estado S01 no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
 
-        // 4. Paso 1: Guardar en estado RECIBIDO
+        // 4. Paso 1: Guardar en estado S01 (Recibido) usando los objetos anidados
         OrdenPago orden = OrdenPago.builder()
                 .claveRastreo(request.getReferenciaSeguimiento())
-                .monto(request.getMonto())
-                .moneda(request.getDivisa())
-                .nombreOrdenante(request.getNombreOrdenante())
-                .cuentaOrdenante(request.getCuentaOrdenante())
-                .nombreBeneficiario(request.getNombreBeneficiario())
-                .cuentaBeneficiaria(request.getCuentaBeneficiaria())
+                .monto(request.getImporte().getValor())
+                .moneda(request.getImporte().getDivisa())
+                .nombreOrdenante(request.getEmisor().getNombre())
+                .cuentaOrdenante(request.getEmisor().getCuenta())
+                .nombreBeneficiario(request.getReceptor().getNombre())
+                .cuentaBeneficiaria(request.getReceptor().getCuenta())
                 .institucion(institucion)
                 .tipoOperacion(tipoOp)
                 .estadoActual(estadoRecibido)
                 .build();
-
         orden = ordenPagoRepository.save(orden);
         registrarLog(orden, (short) 1, estadoRecibido, "Instruccion aceptada y persistida", null);
 
-        // 5. Paso 2: Transición a EN_PROCESO
-        Estado estadoEnProceso = estadoRepository.findByCve("EN_PROCESO")
-                .orElseThrow(() -> new SpeiException("ERR_DB", "Estado EN_PROCESO no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
+        // 5. Paso 2: Transición a S02 (En proceso)
+        Estado estadoEnProceso = estadoRepository.findByCve("S02")
+                .orElseThrow(() -> new SpeiException("ERR_DB", "Estado S02 no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
         orden.setEstadoActual(estadoEnProceso);
         orden = ordenPagoRepository.save(orden);
         registrarLog(orden, (short) 2, estadoEnProceso, "Operacion enviada a la institucion receptora", null);
 
-        // 6. Paso 3: Simulación de liquidación (S01 a S04)
+        // 6. Paso 3: Simulación de liquidación
         var simulacion = simuladorLiquidacionService.simular(orden);
         orden.setEstadoActual(simulacion.estadoFinal());
         orden = ordenPagoRepository.save(orden);
@@ -116,23 +116,27 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
 
         speiBusinessValidator.validarVNT(request);
 
-        Institucion institucion = institucionRepository.findById(request.getCodigoInstitucion())
+        // La institución se obtiene del receptor o emisor según el esquema anidado
+        Integer codigoInst = Integer.parseInt(request.getReceptor().getInstitucion());
+        Institucion institucion = institucionRepository.findById(codigoInst)
                 .orElseThrow(() -> new SpeiException("PRX-003", "Institucion inexistente en el catalogo", HttpStatus.UNPROCESSABLE_ENTITY));
 
         TipoOperacion tipoOp = tipoOperacionRepository.findById("VNT")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Tipo de operacion VNT no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
 
-        Estado estadoRecibido = estadoRepository.findByCve("RECIBIDO")
-                .orElseThrow(() -> new SpeiException("ERR_DB", "Estado RECIBIDO no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
+        // Buscar el estado oficial S01 del contrato
+        Estado estadoRecibido = estadoRepository.findByCve("S01")
+                .orElseThrow(() -> new SpeiException("ERR_DB", "Estado S01 no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
 
+        // Mapeo utilizando los objetos anidados (importe, emisor con sucursal, receptor)
         OrdenPago orden = OrdenPago.builder()
                 .claveRastreo(request.getReferenciaSeguimiento())
-                .monto(request.getMonto())
-                .moneda(request.getDivisa())
-                .nombreOrdenante(request.getNombreOrdenante())
-                .cuentaOrdenante(request.getSucursal())
-                .nombreBeneficiario(request.getNombreBeneficiario())
-                .cuentaBeneficiaria(request.getCuentaBeneficiaria())
+                .monto(request.getImporte().getValor())
+                .moneda(request.getImporte().getDivisa())
+                .nombreOrdenante(request.getEmisor().getNombre())
+                .cuentaOrdenante(request.getEmisor().getSucursal()) // Sucursal para VNT
+                .nombreBeneficiario(request.getReceptor().getNombre())
+                .cuentaBeneficiaria(request.getReceptor().getCuenta())
                 .institucion(institucion)
                 .tipoOperacion(tipoOp)
                 .estadoActual(estadoRecibido)
@@ -141,8 +145,9 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         orden = ordenPagoRepository.save(orden);
         registrarLog(orden, (short) 1, estadoRecibido, "Instruccion ventanilla aceptada", null);
 
-        Estado estadoEnProceso = estadoRepository.findByCve("EN_PROCESO")
-                .orElseThrow(() -> new SpeiException("ERR_DB", "Estado EN_PROCESO no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
+        // Buscar el estado oficial S02 del contrato
+        Estado estadoEnProceso = estadoRepository.findByCve("S02")
+                .orElseThrow(() -> new SpeiException("ERR_DB", "Estado S02 no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
         orden.setEstadoActual(estadoEnProceso);
         orden = ordenPagoRepository.save(orden);
         registrarLog(orden, (short) 2, estadoEnProceso, "Operacion enviada a la institucion receptora", null);

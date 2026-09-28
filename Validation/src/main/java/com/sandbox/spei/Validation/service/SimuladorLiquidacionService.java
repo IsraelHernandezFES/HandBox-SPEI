@@ -23,25 +23,26 @@ public class SimuladorLiquidacionService {
         Integer institucion = orden.getInstitucion().getCodigo();
 
         // S04: Institucion receptora en mantenimiento (805 Praxis Delta) -> PRX-022
+        // Según contrato, estado Devuelta es S04
         if (institucion != null && institucion == 805) {
-            Estado devuelto = obtenerEstado("DEVUELTO");
+            Estado devuelto = obtenerEstado("S04");
             return new ResultadoSimulacion(devuelto, "PRX-022", "Institucion receptora no disponible");
         }
 
         // S02: Fondos insuficientes en el ordenante -> PRX-020
         if (CUENTA_FONDOS_INSUFICIENTES.equals(cuentaBeneficiaria)) {
-            Estado devuelto = obtenerEstado("DEVUELTO");
+            Estado devuelto = obtenerEstado("S04");
             return new ResultadoSimulacion(devuelto, "PRX-020", "Fondos insuficientes en el ordenante");
         }
 
         // S03: Cuenta receptora inexistente o cancelada -> PRX-021
         if (CUENTA_INEXISTENTE.equals(cuentaBeneficiaria)) {
-            Estado devuelto = obtenerEstado("DEVUELTO");
+            Estado devuelto = obtenerEstado("S04");
             return new ResultadoSimulacion(devuelto, "PRX-021", "Cuenta receptora inexistente o cancelada");
         }
 
-        // S01: Liquidacion exitosa (Caso normal)
-        Estado liquidado = obtenerEstado("LIQUIDADO");
+        // S03: Liquidacion exitosa (Caso normal) -> Según tu contrato, Liquidada es S03
+        Estado liquidado = obtenerEstado("S03");
         return new ResultadoSimulacion(liquidado, null, "Liquidacion exitosa");
     }
 

@@ -22,8 +22,12 @@ public class SpeiBusinessValidator {
      * Valida las reglas de negocio específicas para operaciones T2T (Cuenta a Cuenta)
      */
     public void validarT2T(OperacionT2TRequest request) {
+        String cuentaOrdenante = request.getEmisor() != null ? request.getEmisor().getCuenta() : null;
+        String cuentaBeneficiaria = request.getReceptor() != null ? request.getReceptor().getCuenta() : null;
+        String institucionReceptorStr = request.getReceptor() != null ? request.getReceptor().getInstitucion() : null;
+
         // Regla PRX-013: La cuenta ordenante y la cuenta beneficiaria no pueden ser la misma
-        if (request.getCuentaOrdenante() != null && request.getCuentaOrdenante().equals(request.getCuentaBeneficiaria())) {
+        if (cuentaOrdenante != null && cuentaOrdenante.equals(cuentaBeneficiaria)) {
             throw new SpeiException(
                     "PRX-013",
                     "La cuenta ordenante y la cuenta beneficiaria no pueden ser la misma.",
@@ -31,24 +35,33 @@ public class SpeiBusinessValidator {
             );
         }
 
-        // Regla PRX-003: Validar que la institución emisor exista en el catálogo
-        if (request.getCodigoInstitucion() != null) {
-            boolean existeInstitucion = institucionRepository.existsById(request.getCodigoInstitucion());
-            if (!existeInstitucion) {
+        // Regla PRX-003: Validar que la institución del receptor exista en el catálogo
+        if (institucionReceptorStr != null) {
+            try {
+                Integer codInst = Integer.parseInt(institucionReceptorStr);
+                boolean existeInstitucion = institucionRepository.existsById(codInst);
+                if (!existeInstitucion) {
+                    throw new SpeiException(
+                            "PRX-003",
+                            "Institución inexistente en el catálogo.",
+                            HttpStatus.UNPROCESSABLE_ENTITY
+                    );
+                }
+            } catch (NumberFormatException e) {
                 throw new SpeiException(
                         "PRX-003",
-                        "Institución inexistente en el catálogo.",
+                        "Código de institución inválido.",
                         HttpStatus.UNPROCESSABLE_ENTITY
                 );
             }
         }
 
         // Regla PRX-030 (Ordenante): Los 3 primeros dígitos de la cuenta ordenante deben coincidir con la institución emisora
-        if (request.getCuentaOrdenante() != null && request.getCuentaOrdenante().length() >= 3 && request.getCodigoInstitucion() != null) {
-            String prefijoOrdenante = request.getCuentaOrdenante().substring(0, 3);
-            String institucionStr = String.format("%03d", request.getCodigoInstitucion());
+        if (cuentaOrdenante != null && cuentaOrdenante.length() >= 3 && request.getEmisor().getInstitucion() != null) {
+            String prefijoOrdenante = cuentaOrdenante.substring(0, 3);
+            String institucionEmisorStr = request.getEmisor().getInstitucion();
 
-            if (!prefijoOrdenante.equals(institucionStr)) {
+            if (!prefijoOrdenante.equals(institucionEmisorStr)) {
                 throw new SpeiException(
                         "PRX-030",
                         "Los tres primeros dígitos de la cuenta ordenante no coinciden con la institución declarada.",
@@ -57,34 +70,27 @@ public class SpeiBusinessValidator {
             }
         }
 
-        // Validación para el banco beneficiario (verificar que exista en el catálogo según sus primeros 3 dígitos)
-        if (request.getCuentaBeneficiaria() != null && request.getCuentaBeneficiaria().length() >= 3) {
-            String prefijoBeneficiario = request.getCuentaBeneficiaria().substring(0, 3);
-            try {
-                Integer codBeneficiario = Integer.parseInt(prefijoBeneficiario);
-                if (!institucionRepository.existsById(codBeneficiario)) {
-                    throw new SpeiException(
-                            "PRX-003",
-                            "La institución de la cuenta beneficiaria no existe en el catálogo.",
-                            HttpStatus.UNPROCESSABLE_ENTITY
-                    );
-                }
-            } catch (NumberFormatException e) {
+        // Validación para el banco beneficiario (verificar que los primeros 3 dígitos coincidan con su institución)
+        if (cuentaBeneficiaria != null && cuentaBeneficiaria.length() >= 3 && institucionReceptorStr != null) {
+            String prefijoBeneficiario = cuentaBeneficiaria.substring(0, 3);
+            if (!prefijoBeneficiario.equals(institucionReceptorStr)) {
                 throw new SpeiException(
-                        "PRX-001",
-                        "El prefijo de la cuenta beneficiaria no es válido.",
+                        "PRX-030",
+                        "Los tres primeros dígitos de la cuenta beneficiaria no coinciden con la institución declarada.",
                         HttpStatus.UNPROCESSABLE_ENTITY
                 );
             }
         }
 
         // Regla PRX-031: Validación de montos
-        if (request.getMonto() != null && request.getMonto().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new SpeiException(
-                    "PRX-031",
-                    "El monto de la operación debe ser mayor a cero.",
-                    HttpStatus.UNPROCESSABLE_ENTITY
-            );
+        if (request.getImporte() != null && request.getImporte().getValor() != null) {
+            if (request.getImporte().getValor().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new SpeiException(
+                        "PRX-031",
+                        "El monto de la operación debe ser mayor a cero.",
+                        HttpStatus.UNPROCESSABLE_ENTITY
+                );
+            }
         }
     }
 
@@ -92,24 +98,34 @@ public class SpeiBusinessValidator {
      * Valida las reglas de negocio específicas para operaciones VNT (Ventanilla a Tercero)
      */
     public void validarVNT(OperacionVNTRequest request) {
+        String institucionReceptorStr = request.getReceptor() != null ? request.getReceptor().getInstitucion() : null;
+        String cuentaBeneficiaria = request.getReceptor() != null ? request.getReceptor().getCuenta() : null;
+
         // Regla PRX-003: Validar que la institución exista
-        if (request.getCodigoInstitucion() != null) {
-            boolean existeInstitucion = institucionRepository.existsById(request.getCodigoInstitucion());
-            if (!existeInstitucion) {
+        if (institucionReceptorStr != null) {
+            try {
+                Integer codInst = Integer.parseInt(institucionReceptorStr);
+                boolean existeInstitucion = institucionRepository.existsById(codInst);
+                if (!existeInstitucion) {
+                    throw new SpeiException(
+                            "PRX-003",
+                            "Institución inexistente en el catálogo.",
+                            HttpStatus.UNPROCESSABLE_ENTITY
+                    );
+                }
+            } catch (NumberFormatException e) {
                 throw new SpeiException(
                         "PRX-003",
-                        "Institución inexistente en el catálogo.",
+                        "Código de institución inválido.",
                         HttpStatus.UNPROCESSABLE_ENTITY
                 );
             }
         }
 
         // Regla PRX-030: Validar prefijo de cuenta beneficiaria vs institución
-        if (request.getCuentaBeneficiaria() != null && request.getCuentaBeneficiaria().length() >= 3 && request.getCodigoInstitucion() != null) {
-            String prefijoCuenta = request.getCuentaBeneficiaria().substring(0, 3);
-            String institucionStr = String.format("%03d", request.getCodigoInstitucion());
-
-            if (!prefijoCuenta.equals(institucionStr)) {
+        if (cuentaBeneficiaria != null && cuentaBeneficiaria.length() >= 3 && institucionReceptorStr != null) {
+            String prefijoCuenta = cuentaBeneficiaria.substring(0, 3);
+            if (!prefijoCuenta.equals(institucionReceptorStr)) {
                 throw new SpeiException(
                         "PRX-030",
                         "Los tres primeros dígitos de la cuenta no coinciden con la institución declarada.",
@@ -119,12 +135,14 @@ public class SpeiBusinessValidator {
         }
 
         // Regla PRX-031: Validación de montos
-        if (request.getMonto() != null && request.getMonto().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new SpeiException(
-                    "PRX-031",
-                    "El monto de la operación debe ser mayor a cero.",
-                    HttpStatus.UNPROCESSABLE_ENTITY
-            );
+        if (request.getImporte() != null && request.getImporte().getValor() != null) {
+            if (request.getImporte().getValor().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new SpeiException(
+                        "PRX-031",
+                        "El monto de la operación debe ser mayor a cero.",
+                        HttpStatus.UNPROCESSABLE_ENTITY
+                );
+            }
         }
     }
 }
