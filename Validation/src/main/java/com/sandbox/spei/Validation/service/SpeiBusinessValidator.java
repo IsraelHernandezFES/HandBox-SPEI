@@ -31,7 +31,7 @@ public class SpeiBusinessValidator {
             );
         }
 
-        // Regla PRX-003: Validar que la institución exista en el catálogo
+        // Regla PRX-003: Validar que la institución emisor exista en el catálogo
         if (request.getCodigoInstitucion() != null) {
             boolean existeInstitucion = institucionRepository.existsById(request.getCodigoInstitucion());
             if (!existeInstitucion) {
@@ -43,21 +43,42 @@ public class SpeiBusinessValidator {
             }
         }
 
-        // Regla PRX-030: Validación de los primeros 3 dígitos de la cuenta beneficiaria con la institución declarada
-        if (request.getCuentaBeneficiaria() != null && request.getCuentaBeneficiaria().length() >= 3 && request.getCodigoInstitucion() != null) {
-            String prefijoCuenta = request.getCuentaBeneficiaria().substring(0, 3);
+        // Regla PRX-030 (Ordenante): Los 3 primeros dígitos de la cuenta ordenante deben coincidir con la institución emisora
+        if (request.getCuentaOrdenante() != null && request.getCuentaOrdenante().length() >= 3 && request.getCodigoInstitucion() != null) {
+            String prefijoOrdenante = request.getCuentaOrdenante().substring(0, 3);
             String institucionStr = String.format("%03d", request.getCodigoInstitucion());
 
-            if (!prefijoCuenta.equals(institucionStr)) {
+            if (!prefijoOrdenante.equals(institucionStr)) {
                 throw new SpeiException(
                         "PRX-030",
-                        "Los tres primeros dígitos de la cuenta no coinciden con la institución declarada.",
+                        "Los tres primeros dígitos de la cuenta ordenante no coinciden con la institución declarada.",
                         HttpStatus.UNPROCESSABLE_ENTITY
                 );
             }
         }
 
-        // Regla PRX-031: Validación de montos (ej. monto mayor a cero)
+        // Validación para el banco beneficiario (verificar que exista en el catálogo según sus primeros 3 dígitos)
+        if (request.getCuentaBeneficiaria() != null && request.getCuentaBeneficiaria().length() >= 3) {
+            String prefijoBeneficiario = request.getCuentaBeneficiaria().substring(0, 3);
+            try {
+                Integer codBeneficiario = Integer.parseInt(prefijoBeneficiario);
+                if (!institucionRepository.existsById(codBeneficiario)) {
+                    throw new SpeiException(
+                            "PRX-003",
+                            "La institución de la cuenta beneficiaria no existe en el catálogo.",
+                            HttpStatus.UNPROCESSABLE_ENTITY
+                    );
+                }
+            } catch (NumberFormatException e) {
+                throw new SpeiException(
+                        "PRX-001",
+                        "El prefijo de la cuenta beneficiaria no es válido.",
+                        HttpStatus.UNPROCESSABLE_ENTITY
+                );
+            }
+        }
+
+        // Regla PRX-031: Validación de montos
         if (request.getMonto() != null && request.getMonto().compareTo(BigDecimal.ZERO) <= 0) {
             throw new SpeiException(
                     "PRX-031",

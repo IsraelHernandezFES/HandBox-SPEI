@@ -12,10 +12,10 @@ public class ValidationApplication {
 		SpringApplication.run(ValidationApplication.class, args);
 	}
 
-	// --- AGREGA ESTE BLOQUE DE CÓDIGO ---
-	@Bean
-	public ObjectMapper objectMapper() {
-		return new ObjectMapper();
-	}
-	// ------------------------------------
+//	// --- AGREGA ESTE BLOQUE DE CÓDIGO ---
+//	@Bean
+//	public ObjectMapper objectMapper() {
+//		return new ObjectMapper();
+//	}
+//	// ------------------------------------
 }
