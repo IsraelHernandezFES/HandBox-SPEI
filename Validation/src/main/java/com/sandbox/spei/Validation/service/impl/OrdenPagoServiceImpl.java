@@ -9,7 +9,7 @@ import com.sandbox.spei.Validation.repository.*;
 import com.sandbox.spei.Validation.service.IdempotenciaService;
 import com.sandbox.spei.Validation.service.OrdenPagoService;
 import com.sandbox.spei.Validation.service.SimuladorLiquidacionService;
-import com.sandbox.spei.Validation.service.SpeiBusinessValidator;
+import com.sandbox.spei.Validation.validator.SpeiBusinessValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

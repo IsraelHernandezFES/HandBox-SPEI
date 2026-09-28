@@ -1,4 +1,4 @@
-package com.sandbox.spei.Validation.service;
+package com.sandbox.spei.Validation.validator;
 
 import com.sandbox.spei.Validation.dto.request.OperacionT2TRequest;
 import com.sandbox.spei.Validation.dto.request.OperacionVNTRequest;
