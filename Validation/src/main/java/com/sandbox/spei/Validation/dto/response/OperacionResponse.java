@@ -1,4 +1,5 @@
 package com.sandbox.spei.Validation.dto.response;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -25,4 +26,7 @@ public class OperacionResponse {
     private String nombreBeneficiario;
     private String cuentaBeneficiaria;
     private Integer codigoInstitucion;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String codigoMotivo;
 }

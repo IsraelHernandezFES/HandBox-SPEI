@@ -50,16 +50,13 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
     @Override
     @Transactional
     public OperacionResponse procesarOperacionT2T(OperacionT2TRequest request, String claveIdempotencia) {
-        // 1. Validar Idempotencia (si viene encabezado)
         Optional<OperacionResponse> cache = idempotenciaService.verificarIdempotencia(claveIdempotencia, request);
         if (cache.isPresent()) {
             return cache.get();
         }
 
-        // 2. Validar Reglas de Negocio cruzadas
         speiBusinessValidator.validarT2T(request);
 
-        // 3. Buscar catálogos (la institución viene dentro del emisor o receptor según el contrato)
         Integer codigoInst = Integer.parseInt(request.getReceptor().getInstitucion());
         Institucion institucion = institucionRepository.findById(codigoInst)
                 .orElseThrow(() -> new SpeiException("PRX-003", "Institucion inexistente en el catalogo", HttpStatus.UNPROCESSABLE_ENTITY));
@@ -70,7 +67,6 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         Estado estadoRecibido = estadoRepository.findByCve("S01")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Estado S01 no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
 
-        // 4. Paso 1: Guardar en estado S01 (Recibido) usando los objetos anidados
         OrdenPago orden = OrdenPago.builder()
                 .claveRastreo(request.getReferenciaSeguimiento())
                 .monto(request.getImporte().getValor())
@@ -86,24 +82,25 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         orden = ordenPagoRepository.save(orden);
         registrarLog(orden, (short) 1, estadoRecibido, "Instruccion aceptada y persistida", orden.getClaveRastreo());
 
-        // 5. Paso 2: Transición a S02 (En proceso)
         Estado estadoEnProceso = estadoRepository.findByCve("S02")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Estado S02 no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
         orden.setEstadoActual(estadoEnProceso);
         orden = ordenPagoRepository.save(orden);
         registrarLog(orden, (short) 2, estadoEnProceso, "Operacion enviada a la institucion receptora", orden.getClaveRastreo());
 
-        // 6. Paso 3: Simulación de liquidación
         var simulacion = simuladorLiquidacionService.simular(orden);
         orden.setEstadoActual(simulacion.estadoFinal());
         orden = ordenPagoRepository.save(orden);
         registrarLog(orden, (short) 3, simulacion.estadoFinal(), simulacion.motivo(),
                 simulacion.codigoMotivo() != null ? simulacion.codigoMotivo() : orden.getClaveRastreo());
 
-        // 7. Mapear respuesta y registrar en idempotencia
         OperacionResponse response = mapearAResponse(orden);
-        idempotenciaService.registrarOperacion(claveIdempotencia, request, response, 201);
+        // Inyección de código de error al DTO de salida
+        if (simulacion.codigoMotivo() != null) {
+            response.setCodigoMotivo(simulacion.codigoMotivo());
+        }
 
+        idempotenciaService.registrarOperacion(claveIdempotencia, request, response, 201);
         return response;
     }
 
@@ -117,7 +114,6 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
 
         speiBusinessValidator.validarVNT(request);
 
-        // La institución se obtiene del receptor o emisor según el esquema anidado
         Integer codigoInst = Integer.parseInt(request.getReceptor().getInstitucion());
         Institucion institucion = institucionRepository.findById(codigoInst)
                 .orElseThrow(() -> new SpeiException("PRX-003", "Institucion inexistente en el catalogo", HttpStatus.UNPROCESSABLE_ENTITY));
@@ -125,11 +121,9 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         TipoOperacion tipoOp = tipoOperacionRepository.findById("VNT")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Tipo de operacion VNT no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
 
-        // Buscar el estado oficial S01 del contrato
         Estado estadoRecibido = estadoRepository.findByCve("S01")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Estado S01 no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
 
-        // Mapeo utilizando los objetos anidados (importe, emisor con sucursal, receptor)
         OrdenPago orden = OrdenPago.builder()
                 .claveRastreo(request.getReferenciaSeguimiento())
                 .monto(request.getImporte().getValor())
@@ -146,7 +140,6 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         orden = ordenPagoRepository.save(orden);
         registrarLog(orden, (short) 1, estadoRecibido, "Instruccion ventanilla aceptada", orden.getClaveRastreo());
 
-        // Buscar el estado oficial S02 del contrato
         Estado estadoEnProceso = estadoRepository.findByCve("S02")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Estado S02 no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
         orden.setEstadoActual(estadoEnProceso);
@@ -160,13 +153,17 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
                 simulacion.codigoMotivo() != null ? simulacion.codigoMotivo() : orden.getClaveRastreo());
 
         OperacionResponse response = mapearAResponse(orden);
-        idempotenciaService.registrarOperacion(claveIdempotencia, request, response, 201);
+        // Inyección de código de error al DTO de salida
+        if (simulacion.codigoMotivo() != null) {
+            response.setCodigoMotivo(simulacion.codigoMotivo());
+        }
 
+        idempotenciaService.registrarOperacion(claveIdempotencia, request, response, 201);
         return response;
     }
+
     @Override
     public Optional<OperacionResponse> obtenerPorReferencia(String id) {
-        // Si tu ID es Long, conviértelo: Long.parseLong(id)
         return ordenPagoRepository.findById(Long.parseLong(id)).map(this::mapearAResponse);
     }
 
