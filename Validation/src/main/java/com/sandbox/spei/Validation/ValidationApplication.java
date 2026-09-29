@@ -6,7 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean; // <-- Importante agregar este import
 
 @SpringBootApplication
-public class ValidationApplication {
+public class
+ValidationApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ValidationApplication.class, args);
