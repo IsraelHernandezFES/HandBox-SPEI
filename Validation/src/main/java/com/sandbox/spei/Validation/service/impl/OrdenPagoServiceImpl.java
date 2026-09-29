@@ -189,7 +189,7 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
 
         return mapearAResponse(orden);
     }
-    
+
     private void registrarLog(OrdenPago orden, short step, Estado estado, String motivo, String cveRastreo) {
         OrdenLog log = OrdenLog.builder()
                 .ordenPago(orden)
