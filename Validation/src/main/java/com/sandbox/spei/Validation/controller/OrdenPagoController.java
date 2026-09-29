@@ -80,6 +80,15 @@ public class OrdenPagoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<OperacionResponse> cambiarEstado(
+            @PathVariable Long id,
+            @RequestParam String nuevoEstado) {
+
+        OperacionResponse response = ordenPagoService.actualizarEstado(id, nuevoEstado);
+        return ResponseEntity.ok(response);
+    }
+
     // Método auxiliar para lanzar errores si las validaciones del DTO fallan
     private void validarRequest(Object request) {
         Set<ConstraintViolation<Object>> violaciones = validator.validate(request);

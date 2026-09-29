@@ -172,6 +172,24 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         return ordenPagoRepository.findAll().stream().map(this::mapearAResponse).toList();
     }
 
+    @Override
+    @Transactional
+    public OperacionResponse actualizarEstado(Long id, String nuevoEstadoCve) {
+        OrdenPago orden = ordenPagoRepository.findById(id)
+                .orElseThrow(() -> new SpeiException("PRX-404", "Operación no encontrada", HttpStatus.NOT_FOUND));
+
+        // Regla A21: Validar intento de transición de LIQUIDADO (S03) a DEVUELTO (S04) -> PRX-014
+        speiBusinessValidator.validarTransicionEstado(orden.getEstadoActual(), nuevoEstadoCve);
+
+        Estado nuevoEstado = estadoRepository.findByCve(nuevoEstadoCve)
+                .orElseThrow(() -> new SpeiException("ERR_DB", "Estado no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
+
+        orden.setEstadoActual(nuevoEstado);
+        orden = ordenPagoRepository.save(orden);
+
+        return mapearAResponse(orden);
+    }
+    
     private void registrarLog(OrdenPago orden, short step, Estado estado, String motivo, String cveRastreo) {
         OrdenLog log = OrdenLog.builder()
                 .ordenPago(orden)

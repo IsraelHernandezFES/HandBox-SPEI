@@ -16,4 +16,6 @@ public interface OrdenPagoService {
     Optional<OperacionResponse> obtenerPorReferencia(String referencia);
 
     List<OperacionResponse> obtenerTodasLasOrdenes();
+
+    OperacionResponse actualizarEstado(Long id, String nuevoEstado);
 }

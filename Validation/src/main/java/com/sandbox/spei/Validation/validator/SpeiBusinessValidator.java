@@ -2,6 +2,7 @@ package com.sandbox.spei.Validation.validator;
 
 import com.sandbox.spei.Validation.dto.request.OperacionT2TRequest;
 import com.sandbox.spei.Validation.dto.request.OperacionVNTRequest;
+import com.sandbox.spei.Validation.entity.Estado;
 import com.sandbox.spei.Validation.exception.SpeiException;
 import com.sandbox.spei.Validation.repository.InstitucionRepository;
 import org.springframework.http.HttpStatus;
@@ -143,6 +144,16 @@ public class SpeiBusinessValidator {
                         HttpStatus.UNPROCESSABLE_ENTITY
                 );
             }
+        }
+    }
+
+    public void validarTransicionEstado(Estado estadoActual, String cveNuevoEstado) {
+        if (estadoActual != null && "S03".equals(estadoActual.getCve()) && "S04".equals(cveNuevoEstado)) {
+            throw new SpeiException(
+                    "PRX-014",
+                    "Transición de estado prohibida: no se puede pasar de LIQUIDADO a DEVUELTO",
+                    HttpStatus.UNPROCESSABLE_ENTITY
+            );
         }
     }
 }
