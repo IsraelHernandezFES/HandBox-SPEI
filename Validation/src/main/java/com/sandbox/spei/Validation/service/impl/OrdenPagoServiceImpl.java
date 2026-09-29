@@ -10,11 +10,14 @@ import com.sandbox.spei.Validation.service.IdempotenciaService;
 import com.sandbox.spei.Validation.service.OrdenPagoService;
 import com.sandbox.spei.Validation.service.SimuladorLiquidacionService;
 import com.sandbox.spei.Validation.validator.SpeiBusinessValidator;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -167,9 +170,12 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         return ordenPagoRepository.findById(Long.parseLong(id)).map(this::mapearAResponse);
     }
 
+
+
     @Override
-    public List<OperacionResponse> obtenerTodasLasOrdenes() {
-        return ordenPagoRepository.findAll().stream().map(this::mapearAResponse).toList();
+    public Page<OperacionResponse> obtenerTodasLasOrdenes(Pageable pageable) {
+        // Pasa el objeto pageable directamente al repositorio
+        return ordenPagoRepository.findAll(pageable).map(this::mapearAResponse);
     }
 
     @Override
@@ -178,7 +184,7 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         OrdenPago orden = ordenPagoRepository.findById(id)
                 .orElseThrow(() -> new SpeiException("PRX-404", "Operación no encontrada", HttpStatus.NOT_FOUND));
 
-        // Regla A21: Validar intento de transición de LIQUIDADO (S03) a DEVUELTO (S04) -> PRX-014
+        // Regla A21: Validar transición prohibida de LIQUIDADO (S03) a DEVUELTO (S04) -> PRX-014
         speiBusinessValidator.validarTransicionEstado(orden.getEstadoActual(), nuevoEstadoCve);
 
         Estado nuevoEstado = estadoRepository.findByCve(nuevoEstadoCve)

@@ -7,9 +7,15 @@ import com.sandbox.spei.Validation.dto.response.OperacionResponse;
 import com.sandbox.spei.Validation.service.OrdenPagoService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +26,7 @@ public class OrdenPagoController {
 
     private final OrdenPagoService ordenPagoService;
     private final ObjectMapper objectMapper;
-    private final Validator validator; // Para disparar las validaciones de los DTOs manualmente si usas Map
+    private final Validator validator;
 
     public OrdenPagoController(OrdenPagoService ordenPagoService,
                                ObjectMapper objectMapper,
@@ -30,15 +36,15 @@ public class OrdenPagoController {
         this.validator = validator;
     }
 
-    // 1. Listar el historial paginado por fecha de registro descendente
+
     @GetMapping
-    public ResponseEntity<Object> listarOperaciones(
-            @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "20") int tamano) {
-        return ResponseEntity.ok(ordenPagoService.obtenerTodasLasOrdenes());
+    public ResponseEntity<Page<OperacionResponse>> listarOperaciones(
+            @ParameterObject @PageableDefault(size = 20, page = 0, sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return ResponseEntity.ok(ordenPagoService.obtenerTodasLasOrdenes(pageable));
     }
 
-    // 2. Consultar una operación con su historial de transiciones por ID
+    // 2. Consultar una operación por ID (Caso A22 / A18-A20)
     @GetMapping("/{id}")
     public ResponseEntity<OperacionResponse> buscarPorId(@PathVariable String id) {
         return ordenPagoService.obtenerPorReferencia(id)
@@ -57,26 +63,15 @@ public class OrdenPagoController {
         OperacionResponse respuesta;
 
         if ("VNT".equalsIgnoreCase(tipoOperacion)) {
-            // Mapeamos el Map al DTO de Ventanilla
             OperacionVNTRequest requestVnt = objectMapper.convertValue(requestBody, OperacionVNTRequest.class);
-
-            // Validamos las anotaciones del DTO manualmente (opcional pero recomendado)
             validarRequest(requestVnt);
-
-            // ¡Pasamos el objeto con datos al servicio!
             respuesta = ordenPagoService.procesarOperacionVNT(requestVnt, claveIdempotencia);
         } else {
-            // Mapeamos el Map al DTO de T2T por defecto
             OperacionT2TRequest requestT2t = objectMapper.convertValue(requestBody, OperacionT2TRequest.class);
-
-            // Validamos las anotaciones del DTO manualmente
             validarRequest(requestT2t);
-
-            // ¡Pasamos el objeto con datos al servicio!
             respuesta = ordenPagoService.procesarOperacionT2T(requestT2t, claveIdempotencia);
         }
 
-        // El contrato exige responder siempre con 201 Created para instrucciones bien formadas
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
     }
 
@@ -84,7 +79,6 @@ public class OrdenPagoController {
     public ResponseEntity<OperacionResponse> cambiarEstado(
             @PathVariable Long id,
             @RequestParam String nuevoEstado) {
-
         OperacionResponse response = ordenPagoService.actualizarEstado(id, nuevoEstado);
         return ResponseEntity.ok(response);
     }
