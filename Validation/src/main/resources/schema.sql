@@ -120,3 +120,13 @@ CREATE TABLE orden_log (
                            INDEX idx_orden_log_estado (estado_codigo),
                            INDEX idx_orden_log_fecha (hora_procesamiento)
 ) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS registro_idempotencia;
+CREATE TABLE registro_idempotencia (
+    clave_idempotencia VARCHAR(255) NOT NULL,
+    request_hash VARCHAR(64) NOT NULL,
+    response_body TEXT NOT NULL,
+    status_code INT NOT NULL,
+    fecha_creacion DATETIME(6) NULL,
+    PRIMARY KEY (clave_idempotencia)
+) ENGINE=InnoDB;

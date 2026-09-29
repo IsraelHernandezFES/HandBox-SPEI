@@ -59,7 +59,7 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         // 2. Validar Reglas de Negocio cruzadas
         speiBusinessValidator.validarT2T(request);
 
-// 3. Buscar catálogos (la institución viene dentro del emisor o receptor según el contrato)
+        // 3. Buscar catálogos (la institución viene dentro del emisor o receptor según el contrato)
         Integer codigoInst = Integer.parseInt(request.getReceptor().getInstitucion());
         Institucion institucion = institucionRepository.findById(codigoInst)
                 .orElseThrow(() -> new SpeiException("PRX-003", "Institucion inexistente en el catalogo", HttpStatus.UNPROCESSABLE_ENTITY));
@@ -84,20 +84,21 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
                 .estadoActual(estadoRecibido)
                 .build();
         orden = ordenPagoRepository.save(orden);
-        registrarLog(orden, (short) 1, estadoRecibido, "Instruccion aceptada y persistida", null);
+        registrarLog(orden, (short) 1, estadoRecibido, "Instruccion aceptada y persistida", orden.getClaveRastreo());
 
         // 5. Paso 2: Transición a S02 (En proceso)
         Estado estadoEnProceso = estadoRepository.findByCve("S02")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Estado S02 no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
         orden.setEstadoActual(estadoEnProceso);
         orden = ordenPagoRepository.save(orden);
-        registrarLog(orden, (short) 2, estadoEnProceso, "Operacion enviada a la institucion receptora", null);
+        registrarLog(orden, (short) 2, estadoEnProceso, "Operacion enviada a la institucion receptora", orden.getClaveRastreo());
 
         // 6. Paso 3: Simulación de liquidación
         var simulacion = simuladorLiquidacionService.simular(orden);
         orden.setEstadoActual(simulacion.estadoFinal());
         orden = ordenPagoRepository.save(orden);
-        registrarLog(orden, (short) 3, simulacion.estadoFinal(), simulacion.motivo(), simulacion.codigoMotivo());
+        registrarLog(orden, (short) 3, simulacion.estadoFinal(), simulacion.motivo(),
+                simulacion.codigoMotivo() != null ? simulacion.codigoMotivo() : orden.getClaveRastreo());
 
         // 7. Mapear respuesta y registrar en idempotencia
         OperacionResponse response = mapearAResponse(orden);
@@ -143,29 +144,30 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
                 .build();
 
         orden = ordenPagoRepository.save(orden);
-        registrarLog(orden, (short) 1, estadoRecibido, "Instruccion ventanilla aceptada", null);
+        registrarLog(orden, (short) 1, estadoRecibido, "Instruccion ventanilla aceptada", orden.getClaveRastreo());
 
         // Buscar el estado oficial S02 del contrato
         Estado estadoEnProceso = estadoRepository.findByCve("S02")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Estado S02 no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
         orden.setEstadoActual(estadoEnProceso);
         orden = ordenPagoRepository.save(orden);
-        registrarLog(orden, (short) 2, estadoEnProceso, "Operacion enviada a la institucion receptora", null);
+        registrarLog(orden, (short) 2, estadoEnProceso, "Operacion enviada a la institucion receptora", orden.getClaveRastreo());
 
         var simulacion = simuladorLiquidacionService.simular(orden);
         orden.setEstadoActual(simulacion.estadoFinal());
         orden = ordenPagoRepository.save(orden);
-        registrarLog(orden, (short) 3, simulacion.estadoFinal(), simulacion.motivo(), simulacion.codigoMotivo());
+        registrarLog(orden, (short) 3, simulacion.estadoFinal(), simulacion.motivo(),
+                simulacion.codigoMotivo() != null ? simulacion.codigoMotivo() : orden.getClaveRastreo());
 
         OperacionResponse response = mapearAResponse(orden);
         idempotenciaService.registrarOperacion(claveIdempotencia, request, response, 201);
 
         return response;
     }
-
     @Override
-    public Optional<OperacionResponse> obtenerPorReferencia(String referencia) {
-        return ordenPagoRepository.findByClaveRastreo(referencia).map(this::mapearAResponse);
+    public Optional<OperacionResponse> obtenerPorReferencia(String id) {
+        // Si tu ID es Long, conviértelo: Long.parseLong(id)
+        return ordenPagoRepository.findById(Long.parseLong(id)).map(this::mapearAResponse);
     }
 
     @Override

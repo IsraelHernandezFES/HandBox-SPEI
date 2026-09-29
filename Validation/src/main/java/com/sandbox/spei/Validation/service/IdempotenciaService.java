@@ -78,12 +78,13 @@ public class IdempotenciaService {
             RegistroIdempotencia registro = RegistroIdempotencia.builder()
                     .claveIdempotencia(claveIdempotencia)
                     .requestHash(hash)
-                    .responseBody(respuestaJson)
+                    .responseBody(respuestaJson) // Corregido a camelCase
                     .statusCode(statusCode)
                     .build();
 
             idempotenciaRepository.save(registro);
         } catch (Exception e) {
+            System.err.println("DETALLE ERROR IDEMPOTENCIA: " + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
             throw new RuntimeException("Error al registrar idempotencia", e);
         }
     }

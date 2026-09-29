@@ -22,4 +22,6 @@ public interface OrdenPagoRepository extends JpaRepository<OrdenPago, Long> {
 
     // Tipo corregido de Integer a String
     List<OrdenPago> findByTipoOperacionCodigo(String codigoTipoOperacion);
+
+    Optional<OrdenPago> findById(Long id); // o String id según el tipo de tu llave primaria
 }
