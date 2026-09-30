@@ -40,7 +40,7 @@ Sigue estos pasos para montar el proyecto completo (Base de Datos + API) en tu e
 Abre tu terminal y ejecuta:
 
 ```bash
-git clone https://github.com/tu-usuario/Handbox-SPEI-Validation.git
+git clone https://github.com/IsraelHernandezFES/HandBox-SPEI
 cd Handbox-SPEI-Validation
 ```
 
@@ -70,7 +70,7 @@ docker compose up --build -d
 
 ### 4️⃣ ¡Probar la API!
 
-La aplicación estará disponible en el puerto `8080`. Envía una petición `POST` a la ruta `http://localhost:8080/swagger-ui/index.html#/`.
+La aplicación estará disponible en el puerto `8080`. Envía una petición `POST` a la ruta `http://localhost:8080/swagger-ui/index.html#/orden-pago-controller/crearOperacion`.
 
 #### ✅ Ejemplo de Petición Válida (201 Created)
 
@@ -79,50 +79,51 @@ Este JSON pasará todas las validaciones matemáticas y de catálogo:
 ```json
 {
   "tipoOperacion": "T2T",
-  "referenciaSeguimiento": "TEST-EXITO-01",
-  "concepto": "Pago de servicios",
-  "folioNumerico": 1234,
+  "referenciaSeguimiento": "PRX20260929EXITO",
   "importe": {
-    "valor": 250.00,
+    "valor": 1500.00,
     "divisa": "MXN"
   },
   "emisor": {
     "institucion": "801",
     "cuenta": "801180000118359717",
-    "nombre": "Emisor Test"
+    "nombre": "Ana Ruiz Delgado",
+    "identificacionFiscal": "RUDA900112HN4"
   },
   "receptor": {
     "institucion": "802",
     "cuenta": "802180000123456701",
-    "nombre": "Receptor Test"
-  }
+    "nombre": "Operacion Exitosa SA"
+  },
+  "concepto": "Prueba de operacion exitosa",
+  "folioNumerico": 1001
 }
 ```
 
 #### ❌ Ejemplo de Petición Inválida (422 Unprocessable Entity)
 
-Este JSON será rechazado (Error `PRX-003`) porque simula una institución emisora (`999`) que no existe en la base de datos:
+Este JSON será rechazado (Error `PRX-031`) porque la operacion tiene que ser T2T o VNT:
 
 ```json
 {
-  "tipoOperacion": "T2T",
-  "referenciaSeguimiento": "TEST-ERROR-01",
-  "concepto": "Prueba de error de catálogo",
-  "folioNumerico": 5678,
+  "tipoOperacion": "SPEI_DIRECTO",
+  "referenciaSeguimiento": "PRX20260929PRX031",
   "importe": {
-    "valor": 100.00,
+    "valor": 1500.00,
     "divisa": "MXN"
   },
   "emisor": {
-    "institucion": "999",
-    "cuenta": "999180000000000002",
-    "nombre": "Emisor Falso"
+    "institucion": "801",
+    "cuenta": "801180000118359717",
+    "nombre": "Ana Ruiz Delgado"
   },
   "receptor": {
     "institucion": "802",
     "cuenta": "802180000123456701",
-    "nombre": "Receptor Test"
-  }
+    "nombre": "Empresa Beneficiaria SA"
+  },
+  "concepto": "Prueba de operacion invalida",
+  "folioNumerico": 9094
 }
 ```
 
