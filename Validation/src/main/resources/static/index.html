@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handbox SPEI - API Validator</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            fintech: {
+              50: '#F8FAFC',
+              100: '#F1F5F9',
+              200: '#E2E8F0',
+              300: '#CBD5E1',
+              400: '#94A3B8',
+              500: '#64748B',
+              600: '#475569',
+              700: '#334155',
+              800: '#1E293B',
+              900: '#0F172A',
+              accent: '#2563EB',
+              accentHover: '#1D4ED8',
+              emerald: '#10B981',
+              ruby: '#EF4444',
+              amber: '#F59E0B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilos personalizados para inputs y scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+    .code-glow {
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen antialiased flex flex-col justify-between">
+
+  <!-- ========================================== -->
+  <!-- 1. HEADER / NAVBAR                         -->
+  <!-- ========================================== -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/90">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Marca & Título -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-lg font-bold tracking-tight text-slate-900">Handbox SPEI</h1>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">API Validator &amp; Sandbox Simulator</p>
+        </div>
+      </div>
+
+      <!-- Indicador Estado API -->
+      <div class="flex items-center space-x-4">
+        <!-- Indicador dinámico de estado de API -->
+        <!-- JS INJECTION POINT: Cambiar texto o clases según el ping de salud (/health) -->
+        <div id="apiHealthBadge" class="flex items-center space-x-2 bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-3 py-1.5 rounded-full text-xs font-semibold shadow-xs">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span>API Online</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-grow w-full">
+
+    <!-- ========================================== -->
+    <!-- 2. PANEL DE CONFIGURACIÓN DE API (HEADERS)  -->
+    <!-- ========================================== -->
+    <section class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm transition hover:shadow-md">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-slate-100 mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="p-1.5 bg-blue-50 rounded-lg text-blue-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-sm font-semibold text-slate-800">Parámetros de Encabezado &amp; Simulación</h2>
+            <p class="text-xs text-slate-500">Configura la idempotencia HTTP y las reglas de mock SPEI</p>
+          </div>
+        </div>
+        <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md border border-slate-200">
+          Environment: <strong>SANDBOX_SPEI_STAGING</strong>
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+        <!-- Input Clave Idempotencia -->
+        <div class="md:col-span-7">
+          <label for="idempotencyKey" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+            Clave-Idempotencia (Idempotency-Key)
+          </label>
+          <div class="flex rounded-xl shadow-xs">
+            <!-- JS INJECTION POINT: value actual del UUID generado -->
+            <input 
+              type="text" 
+              id="idempotencyKey" 
+              name="idempotencyKey"
+              value="e7b29a14-41d5-4a5c-8901-b51fca58482d" 
+              placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000"
+              class="block w-full rounded-l-xl border-slate-300 border bg-slate-50/50 px-3.5 py-2 text-xs font-mono text-slate-800 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none transition"
+            >
+            <button 
+              type="button" 
+              id="btnGenerateUUID"
+              class="inline-flex items-center px-4 py-2 border border-l-0 border-slate-300 rounded-r-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition cursor-pointer active:scale-95"
+              title="Generar nuevo identificador único"
+            >
+              <svg class="w-3.5 h-3.5 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Autogenerar UUID
+            </button>
+          </div>
+        </div>
+
+        <!-- Select Simular Escenario -->
+        <div class="md:col-span-5">
+          <label for="simulationScenario" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+            Simular Escenario (X-Mock-SPEI-Rule)
+          </label>
+          <div class="relative">
+            <select
+                    id="simulationScenario"
+                    name="simulationScenario"
+                    class="block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none transition appearance-none cursor-pointer pr-10"
+            >
+              <option value="NORMAL" selected>Ninguno (Flujo Normal)</option>
+              <optgroup label="Errores Estructurales y de Formato">
+                <option value="PRX-001">PRX-001 (Cuenta no tiene 18 dígitos)</option>
+                <option value="PRX-002">PRX-002 (Dígito verificador incorrecto)</option>
+                <option value="PRX-004">PRX-004 (Importe no mayor a cero)</option>
+                <option value="PRX-005">PRX-005 (Importe excede límite o decimales)</option>
+                <option value="PRX-006">PRX-006 (Divisa distinta a MXN)</option>
+                <option value="PRX-007">PRX-007 (Concepto inválido o faltante)</option>
+                <option value="PRX-008">PRX-008 (Folio numérico fuera de rango)</option>
+                <option value="PRX-009">PRX-009 (Referencia de seguimiento inválida)</option>
+                <option value="PRX-011">PRX-011 (Campo obligatorio faltante)</option>
+              </optgroup>
+              <optgroup label="Errores de Negocio e Integridad">
+                <option value="PRX-003">PRX-003 (Institución inexistente)</option>
+                <option value="PRX-010">PRX-010 (Referencia registrada previamente)</option>
+                <option value="PRX-013">PRX-013 (Cuenta ordenante igual a beneficiaria)</option>
+                <option value="PRX-015">PRX-015 (Idempotencia con cuerpo distinto)</option>
+                <option value="PRX-030">PRX-030 (Prefijo de cuenta no coincide)</option>
+              </optgroup>
+              <optgroup label="Errores de Liquidación y Simulación">
+                <option value="PRX-020">PRX-020 (Fondos insuficientes)</option>>
+                <option value="PRX-022">PRX-022 (Institución receptora no disponible)</option>
+                <option value="PRX-023">PRX-023 (Sin respuesta de institución receptora)</option>
+                <option value="PRX-024">PRX-024 (Operación marcada para investigación)</option>
+              </optgroup>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- 3. SECCIÓN PRINCIPAL: CAPTURA DE ÓRDENES (CON TABS)  -->
+    <!-- ==================================================== -->
+    <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <!-- Tabs Header -->
+      <div class="border-b border-slate-200 bg-slate-50/60 px-6 pt-4 flex items-center justify-between">
+        <div class="flex space-x-6" role="tablist">
+          <!-- Botón Tab 1 -->
+          <button 
+            type="button" 
+            id="tabBtnForm"
+            class="tab-btn pb-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 flex items-center space-x-2 transition"
+            aria-selected="true"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <span>Formulario Dinámico (Visual)</span>
+          </button>
+          
+          <!-- Botón Tab 2 -->
+          <button 
+            type="button" 
+            id="tabBtnJson"
+            class="tab-btn pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center space-x-2 transition"
+            aria-selected="false"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+            </svg>
+            <span>JSON Crudo</span>
+          </button>
+        </div>
+
+        <div class="text-xs text-slate-400 font-mono hidden sm:block">
+          POST /v1/spei/orders
+        </div>
+      </div>
+
+      <!-- Tab Contents Container -->
+      <div class="p-6">
+        
+        <!-- ======================= -->
+        <!-- TAB 1: FORMULARIO VISUAL -->
+        <!-- ======================= -->
+        <div id="tabContentForm" class="block space-y-6">
+          <form id="speiOrderForm" onsubmit="event.preventDefault();">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              <!-- SECCIÓN 1: EMISOR -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200">
+                <div class="flex items-center space-x-2 mb-3.5 pb-2 border-b border-slate-200">
+                  <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">1. Cuenta Emisor (Ordenante)</h3>
+                </div>
+
+                <div class="space-y-3.5">
+                  <div>
+                    <label for="emisorInstitucion" class="block text-xs font-medium text-slate-600 mb-1">Institución</label>
+                    <select id="emisorInstitucion" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                      <option value="801">801 - Banco Praxis Alfa</option>
+                      <option value="802">802 - Banco Praxis Beta</option>
+                      <option value="803">803 - Banco Praxis Gamma</option>
+                      <option value="804">804 - Praxis Servicios de Pago</option>
+                      <option value="805">805 - Banco Praxis Delta</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="emisorNombre" class="block text-xs font-medium text-slate-600 mb-1">Nombre Completo</label>
+                    <input type="text" id="emisorNombre" value="Fintech Solutions SA de CV" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                  </div>
+
+                  <div>
+                    <label for="emisorCuenta" class="block text-xs font-medium text-slate-600 mb-1">Cuenta CLABE (18 dígitos)</label>
+                    <div class="flex rounded-lg shadow-2xs">
+                      <input type="text" id="emisorCuenta" maxlength="18" value="801180000123456781" class="w-full text-xs font-mono rounded-l-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                      <button type="button" id="btnGenClabeEmisor" class="inline-flex items-center px-3 py-2 border border-l-0 border-slate-300 rounded-r-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium whitespace-nowrap active:scale-95 transition">
+                        Generar CLABE
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECCIÓN 2: RECEPTOR -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200">
+                <div class="flex items-center space-x-2 mb-3.5 pb-2 border-b border-slate-200">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">2. Cuenta Receptor (Beneficiario)</h3>
+                </div>
+
+                <div class="space-y-3.5">
+                  <div>
+                    <label for="receptorInstitucion" class="block text-xs font-medium text-slate-600 mb-1">Institución</label>
+                    <select id="receptorInstitucion" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                      <option value="802">802 - Banco Praxis Beta</option>
+                      <option value="801">801 - Banco Praxis Alfa</option>
+                      <option value="803">803 - Banco Praxis Gamma</option>
+                      <option value="804">804 - Praxis Servicios de Pago</option>
+                      <option value="805">805 - Banco Praxis Delta</option>
+                      <option value="999">999 - Institución Inexistente (Error)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="receptorNombre" class="block text-xs font-medium text-slate-600 mb-1">Nombre Completo</label>
+                    <input type="text" id="receptorNombre" value="Alejandro Hernández Pérez" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                  </div>
+
+                  <div>
+                    <label for="receptorCuenta" class="block text-xs font-medium text-slate-600 mb-1">Cuenta CLABE / Débito (18 dígitos)</label>
+                    <div class="flex rounded-lg shadow-2xs">
+                      <input type="text" id="receptorCuenta" maxlength="18" value="802180009876543219" class="w-full text-xs font-mono rounded-l-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                      <button type="button" id="btnGenClabeReceptor" class="inline-flex items-center px-3 py-2 border border-l-0 border-slate-300 rounded-r-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium whitespace-nowrap active:scale-95 transition">
+                        Generar CLABE
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECCIÓN 3: DETALLES DE PAGO -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200">
+                <div class="flex items-center space-x-2 mb-3.5 pb-2 border-b border-slate-200">
+                  <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">3. Detalles de Pago</h3>
+                </div>
+
+                <div class="space-y-3.5">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label for="pagoImporte" class="block text-xs font-medium text-slate-600 mb-1">Importe</label>
+                      <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-slate-400 text-xs">$</span>
+                        <input type="number" step="0.01" id="pagoImporte" value="1250.00" class="w-full text-xs font-mono rounded-lg border border-slate-300 bg-white pl-6 pr-2.5 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                      </div>
+                    </div>
+                    <div>
+                      <label for="pagoDivisa" class="block text-xs font-medium text-slate-600 mb-1">Divisa</label>
+                      <input type="text" id="pagoDivisa" maxlength="3" value="MXN" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 font-semibold focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition uppercase">
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="pagoConcepto" class="block text-xs font-medium text-slate-600 mb-1">Concepto de Pago</label>
+                    <input type="text" id="pagoConcepto" maxlength="40" value="Pago de Honorarios Servicios API" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                  </div>
+
+                  <div>
+                    <label for="pagoReferencia" class="block text-xs font-medium text-slate-600 mb-1">Referencia Numérica / Rastreo</label>
+                    <div class="flex rounded-lg shadow-2xs">
+                      <input type="text" id="pagoReferencia" maxlength="30" value="REF-20231024-9981" class="w-full text-xs font-mono rounded-l-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                      <button type="button" id="btnGenRef" class="inline-flex items-center px-3 py-2 border border-l-0 border-slate-300 rounded-r-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium whitespace-nowrap active:scale-95 transition">
+                        Autogenerar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+        <!-- ======================= -->
+        <!-- TAB 2: JSON CRUDO       -->
+        <!-- ======================= -->
+        <div id="tabContentJson" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <label for="rawJsonInput" class="text-xs font-semibold uppercase tracking-wider text-slate-600">
+              Payload JSON (SPEI Request Body)
+            </label>
+            
+          </div>
+          <!-- Editor visual simplificado -->
+          <div class="relative rounded-xl border border-slate-300 bg-slate-900 text-slate-100 font-mono text-xs overflow-hidden shadow-inner">
+            <div class="bg-slate-800 px-4 py-2 border-b border-slate-700 flex items-center justify-between text-slate-400 text-xs">
+              <span class="flex items-center space-x-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                <span class="ml-2">payload.json</span>
+              </span>
+              <span>UTF-8</span>
+            </div>
+            <!-- JS INJECTION POINT: Input o Textarea para editar el JSON crudo directamente -->
+            <textarea 
+              id="rawJsonInput" 
+              rows="12" 
+              class="w-full bg-transparent p-4 text-emerald-400 focus:outline-none resize-y font-mono leading-relaxed"
+              spellcheck="false"
+            >{
+  "emisor": {
+    "institucion": "801",
+    "nombre": "Fintech Solutions SA de CV",
+    "cuenta": "801180000123456781",
+    "tipoCuenta": 40
+  },
+  "receptor": {
+    "institucion": "802",
+    "nombre": "Alejandro Hernández Pérez",
+    "cuenta": "802180009876543219",
+    "tipoCuenta": 40
+  },
+  "pago": {
+    "importe": 1250.00,
+    "divisa": "MXN",
+    "concepto": "Pago de Honorarios Servicios API",
+    "referencia": "REF-20231024-9981"
+  }
+}</textarea>
+          </div>
+        </div>
+
+        <!-- BOTÓN PRINCIPAL DE ACCIÓN -->
+        <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-xs text-slate-500 flex items-center space-x-1.5">
+            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>Latencia simulada promedio de respuesta: ~120ms</span>
+          </div>
+
+          <button 
+            type="button" 
+            id="btnExecuteOperation"
+            class="w-full sm:w-auto inline-flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3.5 rounded-xl font-semibold text-sm shadow-md shadow-blue-500/25 active:scale-98 transition transform cursor-pointer"
+          >
+            <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            <span>Ejecutar Operación T2T</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 4. SECCIÓN DE RESPUESTA (RESPONSE VIEWER)  -->
+    <!-- ========================================== -->
+    <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50/50">
+        <div>
+          <h2 class="text-sm font-bold text-slate-800">Resultado de la Ejecución</h2>
+          <p class="text-xs text-slate-500">Inspecciona el payload de respuesta retornado por el subsistema SPEI</p>
+        </div>
+
+        <!-- Badges Dinámicos de Estado -->
+        <!-- JS INJECTION POINT: Actualizar badges HTTP Status y Estado SPEI con los datos reales -->
+        <div id="responseStatusBadges" class="flex items-center space-x-2">
+          <!-- HTTP Status Badge -->
+          <span id="httpStatusBadge" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+            HTTP 200 OK
+          </span>
+          <!-- SPEI State Badge (Ejemplos: 🟢 S03 Liquidado, 🔴 S04 Devuelto / 422 Error) -->
+          <span id="speiStatusBadge" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs">
+            🟢 S03 Liquidado
+          </span>
+        </div>
+      </div>
+
+      <!-- Cuadro de Código para JSON de Respuesta -->
+      <div class="p-6">
+        <div class="relative rounded-xl bg-slate-900 border border-slate-800 overflow-hidden shadow-sm">
+          <!-- Barra superior del código -->
+          <div class="flex items-center justify-between px-4 py-2 bg-slate-800/90 border-b border-slate-800">
+            <span class="text-xs font-mono text-slate-400">Response Payload (application/json)</span>
+            <button 
+              type="button" 
+              id="btnCopyJson"
+              class="inline-flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded-md transition font-medium cursor-pointer"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+              </svg>
+              <span id="copyBtnText">Copiar JSON</span>
+            </button>
+          </div>
+
+          <!-- Bloque de Código JSON -->
+          <!-- JS INJECTION POINT: Inyectar el JSON de respuesta devuelto por la API -->
+          <pre id="responseJsonViewer" class="p-4 font-mono text-xs text-blue-300 overflow-x-auto max-h-72 leading-relaxed"><code>{
+  "trackingKey": "REF-20231024-9981",
+  "idempotencyKey": "e7b29a14-41d5-4a5c-8901-b51fca58482d",
+  "operationId": "SPEI-998231-OP",
+  "statusCode": 200,
+  "speiCode": "S03",
+  "statusDescription": "Liquidado exitosamente en Banxico",
+  "timestamp": "2023-10-24T18:42:19.045Z",
+  "executionTimeMs": 118,
+  "details": {
+    "folioBanxico": "981240184",
+    "monto": 1250.00,
+    "divisa": "MXN",
+    "cuentaEmisor": "801180000123456781",
+    "cuentaReceptor": "802180009876543219",
+    "comision": 0.00
+  }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 5. TABLA DE TRAZABILIDAD (LOGS)           -->
+    <!-- ========================================== -->
+    <section class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="flex items-center space-x-2">
+          <div class="p-1.5 bg-slate-100 rounded-lg text-slate-700">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-800">Tabla de Trazabilidad (Auditoría &amp; Logs)</h2>
+            <p class="text-xs text-slate-500">Histórico de peticiones realizadas en la sesión actual</p>
+          </div>
+        </div>
+
+        <button 
+          type="button" 
+          id="btnClearLogs"
+          class="inline-flex items-center space-x-1.5 px-3 py-1.5 border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 rounded-lg text-xs font-medium transition cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          <span>Limpiar Consola</span>
+        </button>
+      </div>
+
+      <!-- Tabla Responsiva -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200">
+              <th scope="col" class="py-3 px-4">Fecha/Hora</th>
+              <th scope="col" class="py-3 px-4">Clave Rastreo</th>
+              <th scope="col" class="py-3 px-4">Status HTTP</th>
+              <th scope="col" class="py-3 px-4">Estado SPEI</th>
+              <th scope="col" class="py-3 px-4">Idempotencia</th>
+            </tr>
+          </thead>
+          <!-- JS INJECTION POINT: Inyectar filas dinámicamente con las peticiones emitidas -->
+          <tbody id="logsTableBody" class="divide-y divide-slate-100 text-xs font-mono">
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="py-3 px-4 text-slate-600 font-sans">2023-10-24 18:42:19</td>
+              <td class="py-3 px-4 text-blue-600 font-medium font-mono">REF-20231024-9981</td>
+              <td class="py-3 px-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800">
+                  200 OK
+                </span>
+              </td>
+              <td class="py-3 px-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  S03 Liquidado
+                </span>
+              </td>
+              <td class="py-3 px-4 text-slate-400 truncate max-w-[180px]" title="e7b29a14-41d5-4a5c-8901-b51fca58482d">
+                e7b29a14...58482d
+              </td>
+            </tr>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="py-3 px-4 text-slate-600 font-sans">2023-10-24 18:35:02</td>
+              <td class="py-3 px-4 text-blue-600 font-medium font-mono">REF-20231024-9980</td>
+              <td class="py-3 px-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-100 text-rose-800">
+                  422 Unprocessable
+                </span>
+              </td>
+              <td class="py-3 px-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                  S04 Devuelto (PRX-020)
+                </span>
+              </td>
+              <td class="py-3 px-4 text-slate-400 truncate max-w-[180px]" title="34a98f12-0044-4bcd-8841-a1e48f72a39c">
+                34a98f12...72a39c
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 6. SECCIÓN DE CATÁLOGOS (REFERENCIA)       -->
+    <!-- ========================================== -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Card Catálogo Instituciones -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm">
+        <div class="flex items-center space-x-2 mb-3">
+          <div class="p-1 bg-blue-50 text-blue-600 rounded">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+          </div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Catálogo de Instituciones Participantes</h3>
+        </div>
+        
+        <div class="overflow-hidden rounded-lg border border-slate-200">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
+              <tr>
+                <th class="py-2 px-3">Código</th>
+                <th class="py-2 px-3">Institución</th>
+                <th class="py-2 px-3">Estatus</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-mono text-[11px]">
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-blue-600">801</td>
+              <td class="py-2 px-3 font-sans text-slate-700">Banco Praxis Alfa</td>
+              <td class="py-2 px-3"><span class="text-emerald-600 font-sans font-medium text-[10px] bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">NORMAL</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-blue-600">802</td>
+              <td class="py-2 px-3 font-sans text-slate-700">Banco Praxis Beta</td>
+              <td class="py-2 px-3"><span class="text-emerald-600 font-sans font-medium text-[10px] bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">NORMAL</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-blue-600">803</td>
+              <td class="py-2 px-3 font-sans text-slate-700">Banco Praxis Gamma</td>
+              <td class="py-2 px-3"><span class="text-emerald-600 font-sans font-medium text-[10px] bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">NORMAL</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-blue-600">804</td>
+              <td class="py-2 px-3 font-sans text-slate-700">Praxis Servicios de Pago</td>
+              <td class="py-2 px-3"><span class="text-blue-600 font-sans font-medium text-[10px] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">NO_BANCARIA</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-amber-600">805</td>
+              <td class="py-2 px-3 font-sans text-slate-700">Banco Praxis Delta</td>
+              <td class="py-2 px-3"><span class="text-amber-600 font-sans font-medium text-[10px] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">MANTENIMIENTO</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-rose-600">999</td>
+              <td class="py-2 px-3 font-sans text-slate-700">Institución Inexistente / Mock Error</td>
+              <td class="py-2 px-3"><span class="text-rose-600 font-sans font-medium text-[10px] bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">Test Error</span></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Card Catálogo Estados SPEI -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm">
+        <div class="flex items-center space-x-2 mb-3">
+          <div class="p-1 bg-emerald-50 text-emerald-600 rounded">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+            </svg>
+          </div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Catálogo de Códigos de Estado (SPEI)</h3>
+        </div>
+
+        <div class="overflow-hidden rounded-lg border border-slate-200">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200">
+              <tr>
+                <th class="py-2 px-3">Estado</th>
+                <th class="py-2 px-3">Significado</th>
+                <th class="py-2 px-3">Acción Esperada</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 font-mono text-[11px]">
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-amber-600">S01</td>
+              <td class="py-2 px-3 font-sans text-slate-700">Recibida</td>
+              <td class="py-2 px-3 font-sans text-slate-500 text-[10px]">Orden recibida y registrada</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-blue-600">S02</td>
+              <td class="py-2 px-3 font-sans text-slate-700">En proceso</td>
+              <td class="py-2 px-3 font-sans text-slate-500 text-[10px]">En validación y procesamiento</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-emerald-600">S03</td>
+              <td class="py-2 px-3 font-sans text-slate-700">Liquidada</td>
+              <td class="py-2 px-3 font-sans text-slate-500 text-[10px]">Procesada correctamente</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-rose-600">S04</td>
+              <td class="py-2 px-3 font-sans text-slate-700">Devuelta</td>
+              <td class="py-2 px-3 font-sans text-slate-500 text-[10px]">Devuelta después de liquidada</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-red-600">S05</td>
+              <td class="py-2 px-3 font-sans text-slate-700">Rechazada</td>
+              <td class="py-2 px-3 font-sans text-slate-500 text-[10px]">No pudo ser procesada</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-2 px-3 font-semibold text-purple-600">S06</td>
+              <td class="py-2 px-3 font-sans text-slate-700">En investigación</td>
+              <td class="py-2 px-3 font-sans text-slate-500 text-[10px]">Requiere revisión adicional</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- FOOTER                                     -->
+  <!-- ========================================== -->
+  <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="font-semibold text-slate-700">Handbox SPEI</span>
+        <span>•</span>
+        <span>Simulador de Pagos Interbancarios Electrónicos</span>
+      </div>
+      <div class="text-slate-400 font-mono text-[11px]">
+        Sandbox v2.4.0 • Cumplimiento Normativo Banxico Circular 14/2017
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- SCRIPT INTERACTIVO Y PUNTOS DE INYECCIÓN   -->
+  <!-- ========================================== -->
+  <script>
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    function generateRandomClabe(bankCode) {
+      const plaza = "180";
+      // Generamos 11 dígitos aleatorios asegurando que tenga ceros a la izquierda si es necesario
+      let account = Math.floor(Math.random() * 100000000000).toString().padStart(11, '0');
+      let raw17 = bankCode + plaza + account;
+
+      // Algoritmo oficial de validación CLABE (Pesos: 3, 7, 1)
+      const weights = [3, 7, 1];
+      let sum = 0;
+
+      for (let i = 0; i < 17; i++) {
+        let digit = parseInt(raw17.charAt(i), 10);
+        let weight = weights[i % 3];
+        sum += (digit * weight) % 10;
+      }
+
+      let checkDigit = (10 - (sum % 10)) % 10;
+
+      return raw17 + checkDigit;
+    }
+
+    const tabBtnForm = document.getElementById('tabBtnForm');
+    const tabBtnJson = document.getElementById('tabBtnJson');
+    const tabContentForm = document.getElementById('tabContentForm');
+    const tabContentJson = document.getElementById('tabContentJson');
+
+    tabBtnForm.addEventListener('click', () => {
+      tabBtnForm.classList.add('border-blue-600', 'text-blue-600');
+      tabBtnForm.classList.remove('border-transparent', 'text-slate-500');
+      tabBtnJson.classList.remove('border-blue-600', 'text-blue-600');
+      tabBtnJson.classList.add('border-transparent', 'text-slate-500');
+      tabContentForm.classList.remove('hidden');
+      tabContentJson.classList.add('hidden');
+    });
+
+    tabBtnJson.addEventListener('click', () => {
+      syncFormToJson();
+      tabBtnJson.classList.add('border-blue-600', 'text-blue-600');
+      tabBtnJson.classList.remove('border-transparent', 'text-slate-500');
+      tabBtnForm.classList.remove('border-blue-600', 'text-blue-600');
+      tabBtnForm.classList.add('border-transparent', 'text-slate-500');
+      tabContentJson.classList.remove('hidden');
+      tabContentForm.classList.add('hidden');
+    });
+
+    document.getElementById('btnGenerateUUID').addEventListener('click', () => {
+      document.getElementById('idempotencyKey').value = generateUUID();
+    });
+
+    document.getElementById('btnGenClabeEmisor').addEventListener('click', () => {
+      const bank = document.getElementById('emisorInstitucion').value;
+      document.getElementById('emisorCuenta').value = generateRandomClabe(bank);
+    });
+
+    document.getElementById('btnGenClabeReceptor').addEventListener('click', () => {
+      const bank = document.getElementById('receptorInstitucion').value;
+      document.getElementById('receptorCuenta').value = generateRandomClabe(bank);
+    });
+
+    document.getElementById('btnGenRef').addEventListener('click', () => {
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      // Generamos un string 100% alfanumérico sin guiones
+      document.getElementById('pagoReferencia').value = `REF${date}${rand}`;
+    });
+
+    document.getElementById('btnFormatJson').addEventListener('click', (e) => {
+      const btn = e.target;
+      const originalText = btn.innerText;
+      const jsonInput = document.getElementById('rawJsonInput');
+
+      try {
+        // Intenta parsear y formatear el JSON con indentación de 2 espacios
+        const parsed = JSON.parse(jsonInput.value);
+        jsonInput.value = JSON.stringify(parsed, null, 2);
+
+        // Retroalimentación visual de éxito
+        btn.innerText = "¡Formateado!";
+        btn.classList.add("text-emerald-600");
+        btn.classList.remove("text-blue-600");
+
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.classList.add("text-blue-600");
+          btn.classList.remove("text-emerald-600");
+        }, 1500);
+
+      } catch (error) {
+        // Muestra el error exacto si el JSON tiene un fallo de sintaxis
+        alert("El contenido actual no es un JSON válido.\n\nDetalle técnico: " + error.message);
+      }
+    });
+
+    document.getElementById('btnCopyJson').addEventListener('click', () => {
+      const jsonText = document.getElementById('responseJsonViewer').innerText;
+      navigator.clipboard.writeText(jsonText).then(() => {
+        const copyBtnText = document.getElementById('copyBtnText');
+        copyBtnText.innerText = "¡Copiado!";
+        setTimeout(() => { copyBtnText.innerText = "Copiar JSON"; }, 2000);
+      });
+    });
+
+    document.getElementById('btnClearLogs').addEventListener('click', () => {
+      document.getElementById('logsTableBody').innerHTML = `
+        <tr>
+          <td colspan="5" class="py-6 text-center text-slate-400 font-sans italic">
+            Consola limpia. No hay peticiones registradas en este momento.
+          </td>
+        </tr>
+      `;
+    });
+    // --- MAGIA DEL SANDBOX: Autocompletado de Escenarios de Error ---
+    document.getElementById('simulationScenario').addEventListener('change', (e) => {
+      const scenario = e.target.value;
+
+      // 1. Primero, limpiamos la mesa: forzamos datos 100% válidos y sanos
+      document.getElementById('btnGenClabeEmisor').click();
+      document.getElementById('btnGenClabeReceptor').click();
+      document.getElementById('btnGenRef').click();
+      document.getElementById('btnGenerateUUID').click();
+      document.getElementById('pagoImporte').value = "1250.00";
+      document.getElementById('pagoDivisa').value = "MXN";
+      document.getElementById('emisorNombre').value = "Fintech Solutions SA de CV";
+      document.getElementById('emisorInstitucion').value = "801";
+
+      // 2. Aplicamos la mutación exacta para romper la validación de negocio
+      switch (scenario) {
+        case 'PRX-001':
+          document.getElementById('emisorCuenta').value = "801180123"; // Longitud incorrecta
+          break;
+
+        case 'PRX-002':
+          let clabe = document.getElementById('emisorCuenta').value;
+          // Cambiamos el último dígito a propósito para romper la validación matemática
+          let digitoFalso = clabe.charAt(17) === '9' ? '0' : '9';
+          document.getElementById('emisorCuenta').value = clabe.substring(0, 17) + digitoFalso;
+          break;
+
+        case 'PRX-003':
+          document.getElementById('receptorInstitucion').value = "999"; // Institución falsa
+          break;
+
+        case 'PRX-004':
+          document.getElementById('pagoImporte').value = "0.00"; // Importe no mayor a cero
+          break;
+
+        case 'PRX-005':
+          document.getElementById('pagoImporte').value = "1500000.00"; // Excede el millón
+          break;
+
+        case 'PRX-006':
+          document.getElementById('pagoDivisa').value = "USD"; // Divisa prohibida
+          break;
+
+        case 'PRX-009':
+          // Metemos caracteres especiales para romper la regla alfanumérica
+          document.getElementById('pagoReferencia').value = "REF_INVALIDA_$%&";
+          break;
+
+        case 'PRX-011':
+          document.getElementById('emisorNombre').value = ""; // Campo obligatorio vacío
+          break;
+
+        case 'PRX-013':
+          // Clonamos la cuenta receptora en la emisora
+          document.getElementById('emisorCuenta').value = document.getElementById('receptorCuenta').value;
+          break;
+
+        case 'PRX-030':
+          // Ponemos institución 802, pero dejamos una CLABE que empieza con 801
+          document.getElementById('emisorInstitucion').value = "802";
+          document.getElementById('emisorCuenta').value = "801180000123456781";
+          break;
+
+              // Nota: Los errores de liquidación (PRX-020 al PRX-024) y el flujo NORMAL
+              // no necesitan romper el formulario. El backend los simula al leer el Header.
+      }
+
+      // Sincronizamos la vista del JSON crudo para que el usuario vea el cambio
+      syncFormToJson();
+    });
+    // Mapeo de datos del UI a los DTOs de Spring Boot
+    function syncFormToJson() {
+      const payload = {
+        tipoOperacion: "T2T",
+        referenciaSeguimiento: document.getElementById('pagoReferencia').value,
+        concepto: document.getElementById('pagoConcepto').value,
+        folioNumerico: Math.floor(Math.random() * 9000) + 1000,
+        importe: {
+          valor: parseFloat(document.getElementById('pagoImporte').value) || 0.00,
+          divisa: document.getElementById('pagoDivisa').value
+        },
+        emisor: {
+          institucion: document.getElementById('emisorInstitucion').value,
+          cuenta: document.getElementById('emisorCuenta').value,
+          nombre: document.getElementById('emisorNombre').value
+        },
+        receptor: {
+          institucion: document.getElementById('receptorInstitucion').value,
+          cuenta: document.getElementById('receptorCuenta').value,
+          nombre: document.getElementById('receptorNombre').value
+        }
+      };
+      document.getElementById('rawJsonInput').value = JSON.stringify(payload, null, 2);
+    }
+
+    // Petición HTTP POST al servidor local
+    document.getElementById('btnExecuteOperation').addEventListener('click', async () => {
+      const btn = document.getElementById('btnExecuteOperation');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<span class="inline-block animate-spin mr-2">⚙️</span> Procesando en API...`;
+      btn.disabled = true;
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Clave-Idempotencia': document.getElementById('idempotencyKey').value
+      };
+
+      const scenario = document.getElementById('simulationScenario').value;
+      if (scenario !== 'NORMAL') {
+        headers['X-Escenario-Forzado'] = scenario;
+      }
+
+      let requestBody;
+      const tabJsonActivo = !document.getElementById('tabContentJson').classList.contains('hidden');
+
+      if (tabJsonActivo) {
+        requestBody = document.getElementById('rawJsonInput').value;
+      } else {
+        syncFormToJson();
+        requestBody = document.getElementById('rawJsonInput').value;
+      }
+
+      let trackingKey = "N/A";
+      try {
+        trackingKey = JSON.parse(requestBody).referenciaSeguimiento;
+      } catch(e){}
+
+      const idempotencyKey = headers['Clave-Idempotencia'];
+      const timeString = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+      if (scenario === 'PRX-008') {
+        let payload = JSON.parse(requestBody);
+        payload.folioNumerico = 99999999; // Detona PRX-008
+        requestBody = JSON.stringify(payload);
+      }
+
+      try {
+        const response = await fetch('/api/v1/operaciones', {
+          method: 'POST',
+          headers: headers,
+          body: requestBody
+        });
+
+        const responseData = await response.json();
+        const isSuccess = response.ok;
+        const speiCode = responseData.estadoActual || (isSuccess ? 'S03' : 'S04');
+        const httpBadge = document.getElementById('httpStatusBadge');
+        const speiBadge = document.getElementById('speiStatusBadge');
+
+        if (isSuccess) {
+          httpBadge.className = "inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300";
+          httpBadge.innerText = `HTTP ${response.status} OK`;
+          speiBadge.className = "inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs";
+          speiBadge.innerText = `🟢 ${speiCode} Liquidado`;
+        } else {
+          httpBadge.className = "inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300";
+          httpBadge.innerText = `HTTP ${response.status} Error`;
+          speiBadge.className = "inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 shadow-xs";
+          speiBadge.innerText = `🔴 Error: ${responseData.codigoError || speiCode}`;
+        }
+
+        document.getElementById('responseJsonViewer').innerHTML = `<code>${JSON.stringify(responseData, null, 2)}</code>`;
+
+        const logsBody = document.getElementById('logsTableBody');
+        if (logsBody.innerText.includes('Consola limpia')) { logsBody.innerHTML = ''; }
+
+        const newRow = document.createElement('tr');
+        newRow.className = "hover:bg-slate-50/80 transition animate-fade-in";
+        newRow.innerHTML = `
+          <td class="py-3 px-4 text-slate-600 font-sans">${timeString}</td>
+          <td class="py-3 px-4 text-blue-600 font-medium font-mono">${trackingKey}</td>
+          <td class="py-3 px-4">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${isSuccess ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+              ${response.status}
+            </span>
+          </td>
+          <td class="py-3 px-4">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${isSuccess ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
+              ${speiCode}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-slate-400 truncate max-w-[180px]" title="${idempotencyKey}">
+            ${idempotencyKey.substring(0, 8)}...
+          </td>
+        `;
+        logsBody.insertBefore(newRow, logsBody.firstChild);
+
+      } catch (error) {
+        console.error("Error conectando con la API:", error);
+        alert("Error de red: Verifica que Spring Boot esté corriendo.");
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
+    // Inicializar el formulario con datos válidos automáticamente al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btnGenerateUUID').click();
+      document.getElementById('btnGenClabeEmisor').click();
+      document.getElementById('btnGenClabeReceptor').click();
+      document.getElementById('btnGenRef').click();
+
+      // Sincronizar también el Tab de JSON crudo por si el usuario entra directo ahí
+      syncFormToJson();
+    });
+  </script>
+</body>
+</html>

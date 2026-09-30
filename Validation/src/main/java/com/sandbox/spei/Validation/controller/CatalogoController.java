@@ -59,6 +59,8 @@ public class CatalogoController {
                 new ErrorCatalogoDto("PRX-020", "Fondos insuficientes en el ordenante"),
                 new ErrorCatalogoDto("PRX-021", "Cuenta receptora inexistente o cancelada"),
                 new ErrorCatalogoDto("PRX-022", "Institucion receptora no disponible"),
+                new ErrorCatalogoDto("PRX-023", "Sin respuesta de la institución receptora"),
+                new ErrorCatalogoDto("PRX-024", "Operación marcada para investigación"),
                 new ErrorCatalogoDto("PRX-030", "Los tres primeros digitos de la cuenta no coinciden con la institucion declarada"),
                 new ErrorCatalogoDto("PRX-031", "El tipo de operacion debe ser estrictamente T2T o VNT") // V13 ajustado a la tabla
         );

@@ -7,6 +7,7 @@ import com.sandbox.spei.Validation.exception.SpeiException;
 import com.sandbox.spei.Validation.repository.InstitucionRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import com.sandbox.spei.Validation.entity.Institucion;
 
 import java.math.BigDecimal;
 
@@ -75,6 +76,16 @@ public class SpeiBusinessValidator {
                 );
             }
         }
+
+        // Regla PRX-006: La divisa debe ser estrictamente MXN
+        if (request.getImporte() != null && !"MXN".equalsIgnoreCase(request.getImporte().getDivisa())) {
+            throw new SpeiException("PRX-006", "La divisa de la operación debe ser MXN.", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        // Regla PRX-008: El folio numérico debe estar entre 1 y 9,999,999
+        if (request.getFolioNumerico() == null || request.getFolioNumerico() < 1 || request.getFolioNumerico() > 9999999) {
+            throw new SpeiException("PRX-008", "El folio numérico está fuera de rango.", HttpStatus.UNPROCESSABLE_ENTITY);
+        }
     }
 
     /**
@@ -127,26 +138,34 @@ public class SpeiBusinessValidator {
      * Método auxiliar privado para reutilizar la validación en la base de datos (Regla V04)
      */
     private void validarExistenciaInstitucion(String institucionStr) {
-        // Si viene nulo, el DTO y @NotNull ya se encargarán de lanzar PRX-011.
-        // Aquí solo validamos si existe en la base de datos cuando SÍ nos envían un valor.
         if (institucionStr == null || institucionStr.trim().isEmpty()) {
             return;
         }
 
         try {
             Integer codInst = Integer.parseInt(institucionStr);
-            boolean existeInstitucion = institucionRepository.existsById(codInst);
-            if (!existeInstitucion) {
+
+            // Evaluamos si existe y obtenemos la entidad en un solo paso
+            Institucion institucion = institucionRepository.findById(codInst)
+                    .orElseThrow(() -> new SpeiException(
+                            "PRX-023",
+                            "Sin respuesta de'" + institucionStr + "' receptora",
+                            HttpStatus.UNPROCESSABLE_ENTITY
+                    ));
+
+            // Validamos el estado operativo
+            if (!"NORMAL".equalsIgnoreCase(institucion.getEstadoOperativo())) {
                 throw new SpeiException(
-                        "PRX-003",
-                        "La institución '" + institucionStr + "' es inexistente en el catálogo.",
+                        "PRX-023",
+                        "La institución " + institucion.getNombre() + " está en estado " + institucion.getEstadoOperativo() + " y no puede procesar operaciones.",
                         HttpStatus.UNPROCESSABLE_ENTITY
                 );
             }
+
         } catch (NumberFormatException e) {
             throw new SpeiException(
                     "PRX-003",
-                    "El código de institución '" + institucionStr + "' es inválido (no numérico).",
+                    institucionStr + "no existe la institucion",
                     HttpStatus.UNPROCESSABLE_ENTITY
             );
         }

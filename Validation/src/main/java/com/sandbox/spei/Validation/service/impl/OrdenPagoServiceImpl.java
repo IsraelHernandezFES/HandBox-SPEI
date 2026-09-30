@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.sandbox.spei.Validation.entity.Institucion;
 
 import java.util.List;
 import java.util.Optional;
@@ -76,6 +77,15 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         Integer codigoInst = Integer.parseInt(request.getReceptor().getInstitucion());
         Institucion institucion = institucionRepository.findById(codigoInst)
                 .orElseThrow(() -> new SpeiException("PRX-003", "Institucion inexistente en el catalogo", HttpStatus.UNPROCESSABLE_ENTITY));
+
+        // NUEVA REGLA: Bloquear si la institución no está en operación normal
+        if (!"NORMAL".equalsIgnoreCase(institucion.getEstadoOperativo())) {
+            throw new SpeiException(
+                    "PRX-011",
+                    "La institución " + institucion.getNombre() + " se encuentra en estado " + institucion.getEstadoOperativo() + " y no puede recibir transferencias",
+                    HttpStatus.UNPROCESSABLE_ENTITY
+            );
+        }
 
         TipoOperacion tipoOp = tipoOperacionRepository.findById("T2T")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Tipo de operacion T2T no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
@@ -148,6 +158,15 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         Integer codigoInst = Integer.parseInt(request.getReceptor().getInstitucion());
         Institucion institucion = institucionRepository.findById(codigoInst)
                 .orElseThrow(() -> new SpeiException("PRX-003", "Institucion inexistente en el catalogo", HttpStatus.UNPROCESSABLE_ENTITY));
+
+        // NUEVA REGLA: Bloquear si la institución no está en operación normal
+        if (!"NORMAL".equalsIgnoreCase(institucion.getEstadoOperativo())) {
+            throw new SpeiException(
+                    "PRX-011",
+                    "La institución " + institucion.getNombre() + " se encuentra en estado " + institucion.getEstadoOperativo() + " y no puede recibir transferencias",
+                    HttpStatus.UNPROCESSABLE_ENTITY
+            );
+        }
 
         TipoOperacion tipoOp = tipoOperacionRepository.findById("VNT")
                 .orElseThrow(() -> new SpeiException("ERR_DB", "Tipo de operacion VNT no configurado", HttpStatus.INTERNAL_SERVER_ERROR));
