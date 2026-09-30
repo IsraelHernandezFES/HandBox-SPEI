@@ -1,4 +1,4 @@
-# Handbox SPEI - API de Validación 🚀
+# Handbox SPEI - API de Validación
 
 Una API RESTful robusta desarrollada en Spring Boot para la simulación, validación y procesamiento de transferencias tipo SPEI (Sistema de Pagos Electrónicos Interbancarios).
 
@@ -40,7 +40,7 @@ Sigue estos pasos para montar el proyecto completo (Base de Datos + API) en tu e
 Abre tu terminal y ejecuta:
 
 ```bash
-git clone https://github.com/tu-usuario/Handbox-SPEI-Validation.git
+git clone https://github.com/IsraelHernandezFES/HandBox-SPEI
 cd Handbox-SPEI-Validation
 ```
 
@@ -70,10 +70,15 @@ docker compose up --build -d
 
 ### 4️⃣ ¡Probar la API!
 
+<<<<<<< HEAD
 La aplicación estará disponible en el puerto `8080`. Envía una petición `POST` a la ruta `http://localhost:8080/api/v1/operaciones`.
 
 **Importante:** Recuerda incluir el header obligatorio `Clave-Idempotencia` (ej. `IDEMPOTENCIA-001`) en tus peticiones.
 
+=======
+La aplicación estará disponible en el puerto `8080`. Envía una petición `POST` a la ruta `http://localhost:8080/swagger-ui/index.html#/orden-pago-controller/crearOperacion`.
+
+>>>>>>> 863777b10bcdccdbe06654dc4cc6173fb9d16b66
 #### ✅ Ejemplo de Petición Válida (201 Created)
 
 Este JSON pasará todas las validaciones matemáticas y de catálogo:
@@ -81,28 +86,47 @@ Este JSON pasará todas las validaciones matemáticas y de catálogo:
 ```json
 {
   "tipoOperacion": "T2T",
+<<<<<<< HEAD
   "referenciaSeguimiento": "TEST-EXITO-01",
   "concepto": "Pago de servicios",
   "folioNumerico": 1234,
   "importe": {
     "valor": 250.00,
+=======
+  "referenciaSeguimiento": "PRX20260929EXITO",
+  "importe": {
+    "valor": 1500.00,
+>>>>>>> 863777b10bcdccdbe06654dc4cc6173fb9d16b66
     "divisa": "MXN"
   },
   "emisor": {
     "institucion": "801",
     "cuenta": "801180000118359717",
+<<<<<<< HEAD
     "nombre": "Emisor Test"
+=======
+    "nombre": "Ana Ruiz Delgado",
+    "identificacionFiscal": "RUDA900112HN4"
+>>>>>>> 863777b10bcdccdbe06654dc4cc6173fb9d16b66
   },
   "receptor": {
     "institucion": "802",
     "cuenta": "802180000123456701",
+<<<<<<< HEAD
     "nombre": "Receptor Test"
   }
+=======
+    "nombre": "Operacion Exitosa SA"
+  },
+  "concepto": "Prueba de operacion exitosa",
+  "folioNumerico": 1001
+>>>>>>> 863777b10bcdccdbe06654dc4cc6173fb9d16b66
 }
 ```
 
 #### ❌ Ejemplo de Petición Inválida (422 Unprocessable Entity)
 
+<<<<<<< HEAD
 Este JSON será rechazado (Error `PRX-003`) porque simula una institución emisora (`999`) que no existe en la base de datos:
 
 ```json
@@ -119,12 +143,35 @@ Este JSON será rechazado (Error `PRX-003`) porque simula una institución emiso
     "institucion": "999",
     "cuenta": "999180000000000002",
     "nombre": "Emisor Falso"
+=======
+Este JSON será rechazado (Error `PRX-031`) porque la operacion tiene que ser T2T o VNT:
+
+```json
+{
+  "tipoOperacion": "SPEI_DIRECTO",
+  "referenciaSeguimiento": "PRX20260929PRX031",
+  "importe": {
+    "valor": 1500.00,
+    "divisa": "MXN"
+  },
+  "emisor": {
+    "institucion": "801",
+    "cuenta": "801180000118359717",
+    "nombre": "Ana Ruiz Delgado"
+>>>>>>> 863777b10bcdccdbe06654dc4cc6173fb9d16b66
   },
   "receptor": {
     "institucion": "802",
     "cuenta": "802180000123456701",
+<<<<<<< HEAD
     "nombre": "Receptor Test"
   }
+=======
+    "nombre": "Empresa Beneficiaria SA"
+  },
+  "concepto": "Prueba de operacion invalida",
+  "folioNumerico": 9094
+>>>>>>> 863777b10bcdccdbe06654dc4cc6173fb9d16b66
 }
 ```
 
