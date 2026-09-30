@@ -1,4 +1,5 @@
 package com.sandbox.spei.Validation.dto.response;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
@@ -26,6 +27,9 @@ public class OperacionResponse {
     private String nombreBeneficiario;
     private String cuentaBeneficiaria;
     private Integer codigoInstitucion;
+
+    @JsonIgnore
+    private boolean fromCache;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String codigoMotivo;

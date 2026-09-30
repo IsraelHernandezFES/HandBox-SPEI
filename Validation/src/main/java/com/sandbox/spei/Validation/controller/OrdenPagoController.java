@@ -72,7 +72,14 @@ public class OrdenPagoController {
             respuesta = ordenPagoService.procesarOperacionT2T(requestT2t, claveIdempotencia);
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        // Si viene de la caché, devolvemos 200 OK
+        if (respuesta.isFromCache()) {
+            return ResponseEntity.ok(respuesta);
+        }
+        // Si es una operación nueva, devolvemos 201 Created
+        else {
+            return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+        }
     }
 
     @PatchMapping("/{id}/estado")

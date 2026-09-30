@@ -30,7 +30,6 @@ public class SimuladorLiquidacionService {
 
         // Regla A18: Cuenta receptora con dígitos 14 a 17 iguales a 9002 -> PRX-020
         if (cuentaBeneficiaria != null && cuentaBeneficiaria.length() == 18) {
-            // substring(13, 17) extrae los caracteres en los índices 13, 14, 15 y 16 (que son los dígitos 14, 15, 16 y 17)
             String digitos14a17 = cuentaBeneficiaria.substring(13, 17);
             if ("9002".equals(digitos14a17)) {
                 Estado devuelto = obtenerEstado("S04");
@@ -42,6 +41,12 @@ public class SimuladorLiquidacionService {
         if (cuentaBeneficiaria != null && cuentaBeneficiaria.contains("9003")) {
             Estado devuelto = obtenerEstado("S04");
             return new ResultadoSimulacion(devuelto, "PRX-021", "Cuenta receptora inexistente o cancelada");
+        }
+
+        // Regla A26: Cuenta receptora con patrón 9005 -> Permanece en S02 (EN_PROCESO)
+        if (cuentaBeneficiaria != null && cuentaBeneficiaria.contains("9005")) {
+            Estado enProceso = obtenerEstado("S02");
+            return new ResultadoSimulacion(enProceso, "PRX-026", "Operacion permanece en proceso por regla A26");
         }
 
         // Cuenta exacta inexistente o fondos insuficientes (compatibilidad previa)
@@ -58,6 +63,7 @@ public class SimuladorLiquidacionService {
         Estado liquidado = obtenerEstado("S03");
         return new ResultadoSimulacion(liquidado, null, "Liquidacion exitosa");
     }
+
     private Estado obtenerEstado(String cve) {
         return estadoRepository.findByCve(cve)
                 .orElseThrow(() -> new IllegalStateException("Estado no configurado en BD: " + cve));

@@ -55,7 +55,9 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
     public OperacionResponse procesarOperacionT2T(OperacionT2TRequest request, String claveIdempotencia) {
         Optional<OperacionResponse> cache = idempotenciaService.verificarIdempotencia(claveIdempotencia, request);
         if (cache.isPresent()) {
-            return cache.get();
+            OperacionResponse responseCache = cache.get();
+            responseCache.setFromCache(true); // ¡Le avisamos al controlador que es repetida!
+            return responseCache;
         }
 
         speiBusinessValidator.validarT2T(request);
@@ -112,7 +114,9 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
     public OperacionResponse procesarOperacionVNT(OperacionVNTRequest request, String claveIdempotencia) {
         Optional<OperacionResponse> cache = idempotenciaService.verificarIdempotencia(claveIdempotencia, request);
         if (cache.isPresent()) {
-            return cache.get();
+            OperacionResponse responseCache = cache.get();
+            responseCache.setFromCache(true); // ¡Le avisamos al controlador que es repetida!
+            return responseCache;
         }
 
         speiBusinessValidator.validarVNT(request);
