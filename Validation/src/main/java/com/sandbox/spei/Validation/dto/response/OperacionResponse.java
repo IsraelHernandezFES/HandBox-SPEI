@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 //Dto de respuesta comun para ambas operaciones (para retornar tras crearlas con 201 created o al consultarlas)
 
@@ -27,6 +28,8 @@ public class OperacionResponse {
     private String nombreBeneficiario;
     private String cuentaBeneficiaria;
     private Integer codigoInstitucion;
+
+    private List<TransicionDto> transiciones;
 
     @JsonIgnore
     private boolean fromCache;

@@ -3,6 +3,7 @@ package com.sandbox.spei.Validation.service.impl;
 import com.sandbox.spei.Validation.dto.request.OperacionT2TRequest;
 import com.sandbox.spei.Validation.dto.request.OperacionVNTRequest;
 import com.sandbox.spei.Validation.dto.response.OperacionResponse;
+import com.sandbox.spei.Validation.dto.response.TransicionDto;
 import com.sandbox.spei.Validation.entity.*;
 import com.sandbox.spei.Validation.exception.SpeiException;
 import com.sandbox.spei.Validation.repository.*;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -197,7 +199,22 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
 
     @Override
     public Optional<OperacionResponse> obtenerPorReferencia(String id) {
-        return ordenPagoRepository.findById(Long.parseLong(id)).map(this::mapearAResponse);
+        return ordenPagoRepository.findById(Long.parseLong(id)).map(orden -> {
+            OperacionResponse response = mapearAResponse(orden);
+
+            // Armar la lista de transiciones tal como lo exige el punto 5.6
+            List<TransicionDto> historial = ordenLogRepository.findByOrdenPagoOrderByStepAsc(orden)
+                    .stream()
+                    .map(log -> TransicionDto.builder()
+                            .estado(log.getEstado().getCve()) // O .getNombre() si prefieres el texto
+                            .momento(log.getHoraProcesamiento())
+                            .motivo(log.getMotivo())
+                            .build())
+                    .toList();
+
+            response.setTransiciones(historial);
+            return response;
+        });
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.sandbox.spei.Validation.repository;
 
 import com.sandbox.spei.Validation.entity.OrdenLog;
+import com.sandbox.spei.Validation.entity.OrdenPago;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +18,6 @@ public interface OrdenLogRepository extends JpaRepository<OrdenLog, Long> {
 
     // Método necesario para ordenar los logs por clave de rastreo
     List<OrdenLog> findByCveRastreoOrderByStepAsc(String cveRastreo);
+
+    List<OrdenLog> findByOrdenPagoOrderByStepAsc(OrdenPago ordenPago);
 }
