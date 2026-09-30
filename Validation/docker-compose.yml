@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # 1. Contenedor de la Base de Datos MySQL
+  mysql-db:
+    image: mysql:8.0
+    container_name: spei-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: spei1234 # Cambia esto por tu contraseña root real
+      MYSQL_DATABASE: spei_db   # Pon aquí el nombre exacto de tu base de datos
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+  # 2. Contenedor de tu Aplicación Spring Boot
+  app:
+    build: . # Construye la imagen usando el Dockerfile de esta misma carpeta
+    container_name: spei-validation-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/spei_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: spei1234
+      # Cambiamos update por none para respetar tu schema.sql / data.sql
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_SQL_INIT_MODE: always
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+
+volumes:
+  mysql_data: # Mantiene tus datos a salvo aunque borres el contenedor
