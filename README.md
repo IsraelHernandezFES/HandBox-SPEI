@@ -1,4 +1,4 @@
-# Handbox SPEI - API de Validación 🚀
+# Handbox SPEI - API de Validación
 
 Una API RESTful robusta desarrollada en Spring Boot para la simulación, validación y procesamiento de transferencias tipo SPEI (Sistema de Pagos Electrónicos Interbancarios).
 
