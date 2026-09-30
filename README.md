@@ -70,9 +70,63 @@ docker compose up --build -d
 
 ### 4️⃣ ¡Probar la API!
 
-La aplicación estará disponible en el puerto `8080`. Puedes probar el estado del sistema realizando una petición local:
+La aplicación estará disponible en el puerto `8080`. Envía una petición `POST` a la ruta `http://localhost:8080/api/v1/operaciones`.
 
-* **Swagger UI / Endpoints:** `http://localhost:8080/api/v1/operaciones`
+**Importante:** Recuerda incluir el header obligatorio `Clave-Idempotencia` (ej. `IDEMPOTENCIA-001`) en tus peticiones.
+
+#### ✅ Ejemplo de Petición Válida (201 Created)
+
+Este JSON pasará todas las validaciones matemáticas y de catálogo:
+
+```json
+{
+  "tipoOperacion": "T2T",
+  "referenciaSeguimiento": "TEST-EXITO-01",
+  "concepto": "Pago de servicios",
+  "folioNumerico": 1234,
+  "importe": {
+    "valor": 250.00,
+    "divisa": "MXN"
+  },
+  "emisor": {
+    "institucion": "801",
+    "cuenta": "801180000118359717",
+    "nombre": "Emisor Test"
+  },
+  "receptor": {
+    "institucion": "802",
+    "cuenta": "802180000123456701",
+    "nombre": "Receptor Test"
+  }
+}
+```
+
+#### ❌ Ejemplo de Petición Inválida (422 Unprocessable Entity)
+
+Este JSON será rechazado (Error `PRX-003`) porque simula una institución emisora (`999`) que no existe en la base de datos:
+
+```json
+{
+  "tipoOperacion": "T2T",
+  "referenciaSeguimiento": "TEST-ERROR-01",
+  "concepto": "Prueba de error de catálogo",
+  "folioNumerico": 5678,
+  "importe": {
+    "valor": 100.00,
+    "divisa": "MXN"
+  },
+  "emisor": {
+    "institucion": "999",
+    "cuenta": "999180000000000002",
+    "nombre": "Emisor Falso"
+  },
+  "receptor": {
+    "institucion": "802",
+    "cuenta": "802180000123456701",
+    "nombre": "Receptor Test"
+  }
+}
+```
 
 ## 🧪 Ejecución de Pruebas Automatizadas
 
