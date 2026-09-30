@@ -1,2 +1,83 @@
-# HandBox-SPEI
-...
+# Handbox SPEI - API de Validación 🚀
+
+Una API RESTful robusta desarrollada en Spring Boot para la simulación, validación y procesamiento de transferencias tipo SPEI (Sistema de Pagos Electrónicos Interbancarios).
+
+Este proyecto está diseñado para manejar operaciones transaccionales seguras (T2T) aplicando reglas de negocio estrictas, manejo de idempotencia y orquestación de contenedores para un despliegue portable.
+
+## ⚙️ Características Principales
+
+* **Procesamiento de Operaciones (T2T):** Creación y validación de órdenes de pago con un flujo de estados simulado (ej. `S03` para liquidado).
+* **Idempotencia:** Implementación de caché mediante el header `Clave-Idempotencia` para evitar la duplicidad de transacciones ante reintentos de red.
+* **Validación de Reglas de Negocio:**
+  * Validación matemática del dígito verificador de la cuenta CLABE (Error `PRX-002`).
+  * Verificación de existencia de instituciones bancarias en el catálogo (Error `PRX-003`).
+* **Testing en Sandbox:** Capacidad de forzar escenarios de error (ej. fondos insuficientes `PRX-020` con estado `S04`) mediante el header `X-Escenario-Forzado`.
+* **Manejo de Errores Global:** Respuestas estandarizadas con códigos HTTP 422 (Unprocessable Entity) estructuradas de forma limpia.
+
+## 🛠️ Stack Tecnológico
+
+* **Lenguaje:** Java 17
+* **Framework:** Spring Boot (Web, Data JPA, Validation)
+* **Base de Datos:** MySQL 8.0
+* **Dependencias Core:** Maven, Lombok, Jackson
+* **Testing:** JUnit 5, MockMvc
+* **Despliegue:** Docker & Docker Compose
+
+---
+
+## 🚀 Guía de Instalación Rápida
+
+Sigue estos pasos para montar el proyecto completo (Base de Datos + API) en tu entorno local en cuestión de minutos.
+
+### 📋 Prerrequisitos
+
+* **Docker Desktop** instalado y ejecutándose (asegúrate de tener la virtualización VT-x habilitada en tu BIOS).
+* **Java 17 (JDK)** configurado en tus variables de entorno.
+* **Git** para clonar el repositorio.
+
+### 1️⃣ Clonar el repositorio
+
+Abre tu terminal y ejecuta:
+
+```bash
+git clone https://github.com/tu-usuario/Handbox-SPEI-Validation.git
+cd Handbox-SPEI-Validation
+```
+
+### 2️⃣ Generar el ejecutable (.jar)
+
+Utiliza el wrapper de Maven incluido en el proyecto para compilar el código fuente, omitiendo las pruebas para mayor velocidad:
+
+```bash
+# En Windows (PowerShell)
+.\mvnw clean package -DskipTests
+
+# En Linux / Mac
+./mvnw clean package -DskipTests
+```
+
+Esto generará el archivo `Validation-0.0.1-SNAPSHOT.jar` dentro de la carpeta `target/`.
+
+### 3️⃣ Levantar los contenedores con Docker
+
+Inicia la base de datos MySQL y la aplicación Spring Boot de forma orquestada:
+
+```bash
+docker compose up --build -d
+```
+
+> **Nota:** La bandera `-d` levanta los servicios en segundo plano. El sistema incluye un `healthcheck` automático que asegura que la API espere a que MySQL termine de inicializarse.
+
+### 4️⃣ ¡Probar la API!
+
+La aplicación estará disponible en el puerto `8080`. Puedes probar el estado del sistema realizando una petición local:
+
+* **Swagger UI / Endpoints:** `http://localhost:8080/api/v1/operaciones`
+
+## 🧪 Ejecución de Pruebas Automatizadas
+
+El proyecto incluye una suite de pruebas de integración para validar la lógica de negocio. Para ejecutarlas localmente sin Docker:
+
+```bash
+.\mvnw test
+```
