@@ -24,4 +24,6 @@ public interface OrdenPagoRepository extends JpaRepository<OrdenPago, Long> {
     List<OrdenPago> findByTipoOperacionCodigo(String codigoTipoOperacion);
 
     Optional<OrdenPago> findById(Long id); // o String id según el tipo de tu llave primaria
+
+
 }

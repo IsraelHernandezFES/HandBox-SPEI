@@ -60,6 +60,15 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
             return responseCache;
         }
 
+       // REGLA V12 (PRX-010): Evitar referencias duplicadas ---
+        if (ordenPagoRepository.existsByClaveRastreo(request.getReferenciaSeguimiento())) {
+            throw new SpeiException(
+                    "PRX-010",
+                    "Referencia de seguimiento registrada previamente",
+                    HttpStatus.UNPROCESSABLE_ENTITY
+            );
+        }
+
         speiBusinessValidator.validarT2T(request);
 
         Integer codigoInst = Integer.parseInt(request.getReceptor().getInstitucion());
@@ -117,6 +126,15 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
             OperacionResponse responseCache = cache.get();
             responseCache.setFromCache(true); // ¡Le avisamos al controlador que es repetida!
             return responseCache;
+        }
+
+       // REGLA V12 (PRX-010): Evitar referencias duplicadas ---
+        if (ordenPagoRepository.existsByClaveRastreo(request.getReferenciaSeguimiento())) {
+            throw new SpeiException(
+                    "PRX-010",
+                    "Referencia de seguimiento registrada previamente",
+                    HttpStatus.UNPROCESSABLE_ENTITY
+            );
         }
 
         speiBusinessValidator.validarVNT(request);

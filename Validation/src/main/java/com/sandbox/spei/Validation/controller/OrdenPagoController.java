@@ -66,12 +66,20 @@ public class OrdenPagoController {
             OperacionVNTRequest requestVnt = objectMapper.convertValue(requestBody, OperacionVNTRequest.class);
             validarRequest(requestVnt);
             respuesta = ordenPagoService.procesarOperacionVNT(requestVnt, claveIdempotencia);
-        } else {
+        }
+        else if ("T2T".equalsIgnoreCase(tipoOperacion)) {
             OperacionT2TRequest requestT2t = objectMapper.convertValue(requestBody, OperacionT2TRequest.class);
             validarRequest(requestT2t);
             respuesta = ordenPagoService.procesarOperacionT2T(requestT2t, claveIdempotencia);
         }
-
+        else {
+            //  Si no es ni T2T ni VNT, explotamos con PRX-031
+            throw new com.sandbox.spei.Validation.exception.SpeiException(
+                    "PRX-031",
+                    "El tipo de operacion debe ser estrictamente T2T o VNT",
+                    HttpStatus.UNPROCESSABLE_ENTITY
+            );
+        }
         // Si viene de la caché, devolvemos 200 OK
         if (respuesta.isFromCache()) {
             return ResponseEntity.ok(respuesta);
