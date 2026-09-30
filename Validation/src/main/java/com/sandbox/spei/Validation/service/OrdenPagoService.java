@@ -10,13 +10,13 @@ import java.util.Optional;
 
 public interface OrdenPagoService {
 
-    OperacionResponse procesarOperacionT2T(OperacionT2TRequest request, String claveIdempotencia);
-
-    OperacionResponse procesarOperacionVNT(OperacionVNTRequest request, String claveIdempotencia);
-
     Optional<OperacionResponse> obtenerPorReferencia(String referencia);
 
     Page<OperacionResponse> obtenerTodasLasOrdenes(Pageable pageable);
 
     OperacionResponse actualizarEstado(Long id, String nuevoEstado);
+
+    OperacionResponse procesarOperacionT2T(OperacionT2TRequest request, String claveIdempotencia, String escenarioForzado);
+
+    OperacionResponse procesarOperacionVNT(OperacionVNTRequest request, String claveIdempotencia, String escenarioForzado);
 }

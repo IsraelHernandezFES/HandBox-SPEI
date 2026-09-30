@@ -52,15 +52,15 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
 
     @Override
     @Transactional
-    public OperacionResponse procesarOperacionT2T(OperacionT2TRequest request, String claveIdempotencia) {
+    // AQUÍ ESTÁ EL CAMBIO: Se agregó String escenarioForzado
+    public OperacionResponse procesarOperacionT2T(OperacionT2TRequest request, String claveIdempotencia, String escenarioForzado) {
         Optional<OperacionResponse> cache = idempotenciaService.verificarIdempotencia(claveIdempotencia, request);
         if (cache.isPresent()) {
             OperacionResponse responseCache = cache.get();
-            responseCache.setFromCache(true); // ¡Le avisamos al controlador que es repetida!
+            responseCache.setFromCache(true);
             return responseCache;
         }
 
-       // REGLA V12 (PRX-010): Evitar referencias duplicadas ---
         if (ordenPagoRepository.existsByClaveRastreo(request.getReferenciaSeguimiento())) {
             throw new SpeiException(
                     "PRX-010",
@@ -102,14 +102,18 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         orden = ordenPagoRepository.save(orden);
         registrarLog(orden, (short) 2, estadoEnProceso, "Operacion enviada a la institucion receptora", orden.getClaveRastreo());
 
-        var simulacion = simuladorLiquidacionService.simular(orden);
+        // Ahora escenarioForzado sí se reconoce porque está en la firma
+        var simulacion = simuladorLiquidacionService.simular(orden, escenarioForzado);
         orden.setEstadoActual(simulacion.estadoFinal());
         orden = ordenPagoRepository.save(orden);
-        registrarLog(orden, (short) 3, simulacion.estadoFinal(), simulacion.motivo(),
-                simulacion.codigoMotivo() != null ? simulacion.codigoMotivo() : orden.getClaveRastreo());
 
+        // CORRECCIÓN: Concatenamos el PRX al motivo, pero conservamos intacta la Clave de Rastreo
+        String motivoLog = simulacion.codigoMotivo() != null
+                ? simulacion.motivo() + " (" + simulacion.codigoMotivo() + ")"
+                : simulacion.motivo();
+
+        registrarLog(orden, (short) 3, simulacion.estadoFinal(), motivoLog, orden.getClaveRastreo());
         OperacionResponse response = mapearAResponse(orden);
-        // Inyección de código de error al DTO de salida
         if (simulacion.codigoMotivo() != null) {
             response.setCodigoMotivo(simulacion.codigoMotivo());
         }
@@ -120,15 +124,15 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
 
     @Override
     @Transactional
-    public OperacionResponse procesarOperacionVNT(OperacionVNTRequest request, String claveIdempotencia) {
+    // AQUÍ ESTÁ EL CAMBIO: Se agregó String escenarioForzado
+    public OperacionResponse procesarOperacionVNT(OperacionVNTRequest request, String claveIdempotencia, String escenarioForzado) {
         Optional<OperacionResponse> cache = idempotenciaService.verificarIdempotencia(claveIdempotencia, request);
         if (cache.isPresent()) {
             OperacionResponse responseCache = cache.get();
-            responseCache.setFromCache(true); // ¡Le avisamos al controlador que es repetida!
+            responseCache.setFromCache(true);
             return responseCache;
         }
 
-       // REGLA V12 (PRX-010): Evitar referencias duplicadas ---
         if (ordenPagoRepository.existsByClaveRastreo(request.getReferenciaSeguimiento())) {
             throw new SpeiException(
                     "PRX-010",
@@ -154,7 +158,7 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
                 .monto(request.getImporte().getValor())
                 .moneda(request.getImporte().getDivisa())
                 .nombreOrdenante(request.getEmisor().getNombre())
-                .cuentaOrdenante(request.getEmisor().getSucursal()) // Sucursal para VNT
+                .cuentaOrdenante(request.getEmisor().getSucursal())
                 .nombreBeneficiario(request.getReceptor().getNombre())
                 .cuentaBeneficiaria(request.getReceptor().getCuenta())
                 .institucion(institucion)
@@ -171,14 +175,18 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         orden = ordenPagoRepository.save(orden);
         registrarLog(orden, (short) 2, estadoEnProceso, "Operacion enviada a la institucion receptora", orden.getClaveRastreo());
 
-        var simulacion = simuladorLiquidacionService.simular(orden);
+        // Ahora escenarioForzado sí se reconoce porque está en la firma
+        var simulacion = simuladorLiquidacionService.simular(orden, escenarioForzado);
         orden.setEstadoActual(simulacion.estadoFinal());
         orden = ordenPagoRepository.save(orden);
-        registrarLog(orden, (short) 3, simulacion.estadoFinal(), simulacion.motivo(),
-                simulacion.codigoMotivo() != null ? simulacion.codigoMotivo() : orden.getClaveRastreo());
 
+        // CORRECCIÓN: Concatenamos el PRX al motivo, pero conservamos intacta la Clave de Rastreo
+        String motivoLog = simulacion.codigoMotivo() != null
+                ? simulacion.motivo() + " (" + simulacion.codigoMotivo() + ")"
+                : simulacion.motivo();
+
+        registrarLog(orden, (short) 3, simulacion.estadoFinal(), motivoLog, orden.getClaveRastreo());
         OperacionResponse response = mapearAResponse(orden);
-        // Inyección de código de error al DTO de salida
         if (simulacion.codigoMotivo() != null) {
             response.setCodigoMotivo(simulacion.codigoMotivo());
         }
@@ -192,11 +200,8 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         return ordenPagoRepository.findById(Long.parseLong(id)).map(this::mapearAResponse);
     }
 
-
-
     @Override
     public Page<OperacionResponse> obtenerTodasLasOrdenes(Pageable pageable) {
-        // Pasa el objeto pageable directamente al repositorio
         return ordenPagoRepository.findAll(pageable).map(this::mapearAResponse);
     }
 
@@ -206,7 +211,6 @@ public class OrdenPagoServiceImpl implements OrdenPagoService {
         OrdenPago orden = ordenPagoRepository.findById(id)
                 .orElseThrow(() -> new SpeiException("PRX-404", "Operación no encontrada", HttpStatus.NOT_FOUND));
 
-        // Regla A21: Validar transición prohibida de LIQUIDADO (S03) a DEVUELTO (S04) -> PRX-014
         speiBusinessValidator.validarTransicionEstado(orden.getEstadoActual(), nuevoEstadoCve);
 
         Estado nuevoEstado = estadoRepository.findByCve(nuevoEstadoCve)

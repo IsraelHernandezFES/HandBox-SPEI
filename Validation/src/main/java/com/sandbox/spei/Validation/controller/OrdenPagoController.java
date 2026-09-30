@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.Map;
 import java.util.Set;
 
@@ -36,15 +35,12 @@ public class OrdenPagoController {
         this.validator = validator;
     }
 
-
     @GetMapping
     public ResponseEntity<Page<OperacionResponse>> listarOperaciones(
             @ParameterObject @PageableDefault(size = 20, page = 0, sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable) {
-
         return ResponseEntity.ok(ordenPagoService.obtenerTodasLasOrdenes(pageable));
     }
 
-    // 2. Consultar una operación por ID (Caso A22 / A18-A20)
     @GetMapping("/{id}")
     public ResponseEntity<OperacionResponse> buscarPorId(@PathVariable String id) {
         return ordenPagoService.obtenerPorReferencia(id)
@@ -52,7 +48,6 @@ public class OrdenPagoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 3. Alta unificada de operación (T2T o VNT según el JSON recibido)
     @PostMapping
     public ResponseEntity<OperacionResponse> crearOperacion(
             @RequestBody Map<String, Object> requestBody,
@@ -65,27 +60,22 @@ public class OrdenPagoController {
         if ("VNT".equalsIgnoreCase(tipoOperacion)) {
             OperacionVNTRequest requestVnt = objectMapper.convertValue(requestBody, OperacionVNTRequest.class);
             validarRequest(requestVnt);
-            respuesta = ordenPagoService.procesarOperacionVNT(requestVnt, claveIdempotencia);
-        }
-        else if ("T2T".equalsIgnoreCase(tipoOperacion)) {
+            respuesta = ordenPagoService.procesarOperacionVNT(requestVnt, claveIdempotencia, escenarioForzado);
+        } else if ("T2T".equalsIgnoreCase(tipoOperacion)) {
             OperacionT2TRequest requestT2t = objectMapper.convertValue(requestBody, OperacionT2TRequest.class);
             validarRequest(requestT2t);
-            respuesta = ordenPagoService.procesarOperacionT2T(requestT2t, claveIdempotencia);
-        }
-        else {
-            //  Si no es ni T2T ni VNT, explotamos con PRX-031
+            respuesta = ordenPagoService.procesarOperacionT2T(requestT2t, claveIdempotencia, escenarioForzado);
+        } else {
             throw new com.sandbox.spei.Validation.exception.SpeiException(
                     "PRX-031",
                     "El tipo de operacion debe ser estrictamente T2T o VNT",
                     HttpStatus.UNPROCESSABLE_ENTITY
             );
         }
-        // Si viene de la caché, devolvemos 200 OK
+
         if (respuesta.isFromCache()) {
             return ResponseEntity.ok(respuesta);
-        }
-        // Si es una operación nueva, devolvemos 201 Created
-        else {
+        } else {
             return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
         }
     }
@@ -98,7 +88,6 @@ public class OrdenPagoController {
         return ResponseEntity.ok(response);
     }
 
-    // Método auxiliar para lanzar errores si las validaciones del DTO fallan
     private void validarRequest(Object request) {
         Set<ConstraintViolation<Object>> violaciones = validator.validate(request);
         if (!violaciones.isEmpty()) {
