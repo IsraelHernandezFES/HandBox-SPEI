@@ -79,9 +79,8 @@
         </div>
         <div>
           <div class="flex items-center space-x-2">
-            <h1 class="text-lg font-bold tracking-tight text-slate-900">Handbox SPEI</h1>
+            <h1 class="text-lg font-bold tracking-tight text-slate-900">Sandbox SPEI</h1>
           </div>
-          <p class="text-xs text-slate-500 font-medium">API Validator &amp; Sandbox Simulator</p>
         </div>
       </div>
 
@@ -120,16 +119,14 @@
             <p class="text-xs text-slate-500">Configura la idempotencia HTTP y las reglas de mock SPEI</p>
           </div>
         </div>
-        <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md border border-slate-200">
-          Environment: <strong>SANDBOX_SPEI_STAGING</strong>
-        </span>
+
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
         <!-- Input Clave Idempotencia -->
         <div class="md:col-span-7">
           <label for="idempotencyKey" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-            Clave-Idempotencia (Idempotency-Key)
+            Clave-Idempotencia
           </label>
           <div class="flex rounded-xl shadow-xs">
             <!-- JS INJECTION POINT: value actual del UUID generado -->
@@ -150,7 +147,7 @@
               <svg class="w-3.5 h-3.5 mr-1.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
               </svg>
-              Autogenerar UUID
+              Autogenerar
             </button>
           </div>
         </div>
@@ -158,7 +155,7 @@
         <!-- Select Simular Escenario -->
         <div class="md:col-span-5">
           <label for="simulationScenario" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-            Simular Escenario (X-Mock-SPEI-Rule)
+            Simular Escenario
           </label>
           <div class="relative">
             <select
@@ -209,35 +206,27 @@
       <!-- Tabs Header -->
       <div class="border-b border-slate-200 bg-slate-50/60 px-6 pt-4 flex items-center justify-between">
         <div class="flex space-x-6" role="tablist">
-          <!-- Botón Tab 1 -->
-          <button 
-            type="button" 
-            id="tabBtnForm"
-            class="tab-btn pb-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 flex items-center space-x-2 transition"
-            aria-selected="true"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-            <span>Formulario Dinámico (Visual)</span>
+          <!-- Botón Tab 1 (T2T) -->
+          <button type="button" id="tabBtnForm" class="tab-btn pb-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 flex items-center space-x-2 transition" aria-selected="true">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span>Formulario T2T</span>
           </button>
-          
-          <!-- Botón Tab 2 -->
-          <button 
-            type="button" 
-            id="tabBtnJson"
-            class="tab-btn pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center space-x-2 transition"
-            aria-selected="false"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-            </svg>
+
+          <!-- Botón Tab 2 (Ventanilla) -->
+          <button type="button" id="tabBtnVnt" class="tab-btn pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center space-x-2 transition" aria-selected="false">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span>Ventanilla (VNT)</span>
+          </button>
+
+          <!-- Botón Tab 3 (JSON) -->
+          <button type="button" id="tabBtnJson" class="tab-btn pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center space-x-2 transition" aria-selected="false">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
             <span>JSON Crudo</span>
           </button>
         </div>
 
         <div class="text-xs text-slate-400 font-mono hidden sm:block">
-          POST /v1/spei/orders
+          POST /api/v1/operaciones
         </div>
       </div>
 
@@ -367,14 +356,141 @@
             </div>
           </form>
         </div>
+        <!-- ======================= -->
+        <!-- TAB 2: FORMULARIO VNT   -->
+        <!-- ======================= -->
+        <div id="tabContentVnt" class="hidden space-y-6">
+          <form id="speiOrderFormVnt" onsubmit="event.preventDefault();">
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+              <!-- SECCIÓN 1: EMISOR (VENTANILLA) -->
+              <div class="bg-amber-50/40 p-4 rounded-xl border border-amber-200/60 shadow-inner">
+                <div class="flex items-center space-x-2 mb-3.5 pb-2 border-b border-amber-200/50">
+                  <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">1. Emisor en Ventanilla (VNT)</h3>
+                </div>
+
+                <div class="space-y-3.5">
+                  <div>
+                    <label for="vntEmisorInstitucion" class="block text-xs font-medium text-slate-600 mb-1">Sucursal Receptora de Efectivo</label>
+                    <select id="vntEmisorInstitucion" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                      <option value="801">801 - Sucursal Reforma (Banco Praxis Alfa)</option>
+                      <option value="801">801 - Sucursal Insurgentes Sur (Banco Praxis Alfa)</option>
+                      <option value="802">802 - Sucursal Polanco (Banco Praxis Beta)</option>
+                      <option value="804">804 - Módulo AICM Terminal 1 (Praxis Servicios)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="vntEmisorNombre" class="block text-xs font-medium text-slate-600 mb-1">Nombre Completo del Depositante</label>
+                    <input type="text" id="vntEmisorNombre" value="Juan Pérez Sánchez" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-1">
+                      <label for="vntEmisorTipoId" class="block text-xs font-medium text-slate-600 mb-1">Tipo ID</label>
+                      <select id="vntEmisorTipoId" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-2 py-2 text-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none">
+                        <option value="INE">INE</option>
+                        <option value="RFC">RFC</option>
+                        <option value="PASAPORTE">Pasaporte</option>
+                      </select>
+                    </div>
+                    <div class="col-span-2">
+                      <label for="vntEmisorNumId" class="block text-xs font-medium text-slate-600 mb-1">Número de Identificación</label>
+                      <input type="text" id="vntEmisorNumId" value="PERS920101XYZ" class="w-full text-xs font-mono rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none uppercase">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECCIÓN 2: RECEPTOR (DESTINO) -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200">
+                <div class="flex items-center space-x-2 mb-3.5 pb-2 border-b border-slate-200">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">2. Cuenta Receptor (Beneficiario)</h3>
+                </div>
+
+                <div class="space-y-3.5">
+                  <div>
+                    <label for="vntReceptorInstitucion" class="block text-xs font-medium text-slate-600 mb-1">Institución Destino</label>
+                    <select id="vntReceptorInstitucion" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                      <option value="803">803 - Banco Praxis Gamma</option>
+                      <option value="801">801 - Banco Praxis Alfa</option>
+                      <option value="802">802 - Banco Praxis Beta</option>
+                      <option value="804">804 - Praxis Servicios de Pago</option>
+                      <option value="805">805 - Banco Praxis Delta</option>
+                      <option value="999">999 - Institución Inexistente (Error)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="vntReceptorNombre" class="block text-xs font-medium text-slate-600 mb-1">Nombre del Beneficiario</label>
+                    <input type="text" id="vntReceptorNombre" value="Comercializadora del Norte SA" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                  </div>
+
+                  <div>
+                    <label for="vntReceptorCuenta" class="block text-xs font-medium text-slate-600 mb-1">Cuenta CLABE (18 dígitos)</label>
+                    <div class="flex rounded-lg shadow-2xs">
+                      <input type="text" id="vntReceptorCuenta" maxlength="18" value="803180009876543212" class="w-full text-xs font-mono rounded-l-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                      <button type="button" id="btnGenClabeReceptorVnt" class="inline-flex items-center px-3 py-2 border border-l-0 border-slate-300 rounded-r-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium whitespace-nowrap active:scale-95 transition">
+                        Generar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECCIÓN 3: DETALLES DE PAGO -->
+              <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200">
+                <div class="flex items-center space-x-2 mb-3.5 pb-2 border-b border-slate-200">
+                  <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">3. Detalles de Pago (Efectivo)</h3>
+                </div>
+
+                <div class="space-y-3.5">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label for="vntPagoImporte" class="block text-xs font-medium text-slate-600 mb-1">Importe</label>
+                      <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-slate-400 text-xs">$</span>
+                        <input type="number" step="0.01" id="vntPagoImporte" value="4500.00" class="w-full text-xs font-mono rounded-lg border border-slate-300 bg-white pl-6 pr-2.5 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                      </div>
+                    </div>
+                    <div>
+                      <label for="vntPagoDivisa" class="block text-xs font-medium text-slate-600 mb-1">Divisa</label>
+                      <input type="text" id="vntPagoDivisa" maxlength="3" value="MXN" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 font-semibold focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition uppercase">
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="vntPagoConcepto" class="block text-xs font-medium text-slate-600 mb-1">Concepto de Pago</label>
+                    <input type="text" id="vntPagoConcepto" maxlength="40" value="Pago de colegiatura" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                  </div>
+
+                  <div>
+                    <label for="vntPagoReferencia" class="block text-xs font-medium text-slate-600 mb-1">Referencia Numérica / Rastreo</label>
+                    <div class="flex rounded-lg shadow-2xs">
+                      <input type="text" id="vntPagoReferencia" maxlength="30" value="VNT-20231024-5544" class="w-full text-xs font-mono rounded-l-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+                      <button type="button" id="btnGenRefVnt" class="inline-flex items-center px-3 py-2 border border-l-0 border-slate-300 rounded-r-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium whitespace-nowrap active:scale-95 transition">
+                        Generar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
 
         <!-- ======================= -->
-        <!-- TAB 2: JSON CRUDO       -->
+        <!-- TAB 3: JSON CRUDO       -->
         <!-- ======================= -->
         <div id="tabContentJson" class="hidden space-y-4">
           <div class="flex items-center justify-between">
             <label for="rawJsonInput" class="text-xs font-semibold uppercase tracking-wider text-slate-600">
-              Payload JSON (SPEI Request Body)
+              SPEI Request Body
             </label>
 
           </div>
@@ -594,7 +710,7 @@
     <!-- 6. SECCIÓN DE CATÁLOGOS (REFERENCIA)       -->
     <!-- ========================================== -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      
+
       <!-- Card Catálogo Instituciones -->
       <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm">
         <div class="flex items-center space-x-2 mb-3">
@@ -707,6 +823,129 @@
         </div>
       </div>
 
+      <!-- Card Catálogo Errores -->
+      <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm md:col-span-2">
+        <div class="flex items-center space-x-2 mb-3">
+          <div class="p-1 bg-rose-50 text-rose-600 rounded">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Catálogo de Códigos de Error (PRX)</h3>
+        </div>
+
+        <div class="overflow-hidden rounded-lg border border-slate-200">
+          <div class="max-h-80 overflow-y-auto">
+            <table class="w-full text-xs text-left relative">
+              <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-500 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+              <tr>
+                <th class="py-2 px-3">Código</th>
+                <th class="py-2 px-3">Descripción del Error</th>
+                <th class="py-2 px-3">Categoría de Validación</th>
+              </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-mono text-[11px]">
+              <!-- Errores Estructurales -->
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-001</td>
+                <td class="py-2 px-3 font-sans text-slate-700">La cuenta debe tener exactamente 18 dígitos numéricos</td>
+                <td class="py-2 px-3"><span class="text-slate-600 font-sans font-medium text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Estructura</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-002</td>
+                <td class="py-2 px-3 font-sans text-slate-700">Dígito verificador de la CLABE incorrecto</td>
+                <td class="py-2 px-3"><span class="text-slate-600 font-sans font-medium text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Estructura</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-004</td>
+                <td class="py-2 px-3 font-sans text-slate-700">El importe debe ser estrictamente mayor que cero</td>
+                <td class="py-2 px-3"><span class="text-slate-600 font-sans font-medium text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Estructura</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-005</td>
+                <td class="py-2 px-3 font-sans text-slate-700">El importe excede 1,000,000.00 o tiene más de dos decimales</td>
+                <td class="py-2 px-3"><span class="text-slate-600 font-sans font-medium text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Estructura</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-006</td>
+                <td class="py-2 px-3 font-sans text-slate-700">La divisa debe ser MXN</td>
+                <td class="py-2 px-3"><span class="text-slate-600 font-sans font-medium text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Estructura</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-007</td>
+                <td class="py-2 px-3 font-sans text-slate-700">El concepto es obligatorio, entre uno y cuarenta caracteres</td>
+                <td class="py-2 px-3"><span class="text-slate-600 font-sans font-medium text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Estructura</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-008</td>
+                <td class="py-2 px-3 font-sans text-slate-700">El folio numérico debe ser un entero entre 1 y 9,999,999</td>
+                <td class="py-2 px-3"><span class="text-slate-600 font-sans font-medium text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Estructura</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-009</td>
+                <td class="py-2 px-3 font-sans text-slate-700">La referencia de seguimiento es obligatoria y alfanumérica</td>
+                <td class="py-2 px-3"><span class="text-slate-600 font-sans font-medium text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Estructura</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-011</td>
+                <td class="py-2 px-3 font-sans text-slate-700">Campo obligatorio faltante (cuenta, sucursal, o nombre)</td>
+                <td class="py-2 px-3"><span class="text-slate-600 font-sans font-medium text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">Estructura</span></td>
+              </tr>
+
+              <!-- Errores de Negocio -->
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-003</td>
+                <td class="py-2 px-3 font-sans text-slate-700">Institución inexistente en el catálogo o no operativa</td>
+                <td class="py-2 px-3"><span class="text-blue-600 font-sans font-medium text-[10px] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">Negocio</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-010</td>
+                <td class="py-2 px-3 font-sans text-slate-700">Referencia de seguimiento registrada previamente</td>
+                <td class="py-2 px-3"><span class="text-blue-600 font-sans font-medium text-[10px] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">Negocio</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-013</td>
+                <td class="py-2 px-3 font-sans text-slate-700">La cuenta ordenante y beneficiaria no pueden ser la misma</td>
+                <td class="py-2 px-3"><span class="text-blue-600 font-sans font-medium text-[10px] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">Negocio</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-015</td>
+                <td class="py-2 px-3 font-sans text-slate-700">Clave-Idempotencia reutilizada con cuerpo de petición distinto</td>
+                <td class="py-2 px-3"><span class="text-blue-600 font-sans font-medium text-[10px] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">Negocio</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-030</td>
+                <td class="py-2 px-3 font-sans text-slate-700">Los 3 primeros dígitos de la cuenta no coinciden con la institución</td>
+                <td class="py-2 px-3"><span class="text-blue-600 font-sans font-medium text-[10px] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">Negocio</span></td>
+              </tr>
+
+              <!-- Errores de Liquidación -->
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-020</td>
+                <td class="py-2 px-3 font-sans text-slate-700">Fondos insuficientes en la cuenta ordenante</td>
+                <td class="py-2 px-3"><span class="text-purple-600 font-sans font-medium text-[10px] bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">Liquidación</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-022</td>
+                <td class="py-2 px-3 font-sans text-slate-700">Institución receptora no disponible (Desconectada)</td>
+                <td class="py-2 px-3"><span class="text-purple-600 font-sans font-medium text-[10px] bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">Liquidación</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-023</td>
+                <td class="py-2 px-3 font-sans text-slate-700">Sin respuesta a tiempo de la institución receptora (Timeout)</td>
+                <td class="py-2 px-3"><span class="text-purple-600 font-sans font-medium text-[10px] bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">Liquidación</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold text-rose-600">PRX-024</td>
+                <td class="py-2 px-3 font-sans text-slate-700">Operación marcada para investigación por Banxico</td>
+                <td class="py-2 px-3"><span class="text-purple-600 font-sans font-medium text-[10px] bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200">Liquidación</span></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </section>
 
   </main>
@@ -717,13 +956,11 @@
   <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
       <div class="flex items-center space-x-2">
-        <span class="font-semibold text-slate-700">Handbox SPEI</span>
+        <span class="font-semibold text-slate-700">Sandbox SPEI</span>
         <span>•</span>
         <span>Simulador de Pagos Interbancarios Electrónicos</span>
       </div>
-      <div class="text-slate-400 font-mono text-[11px]">
-        Sandbox v2.4.0 • Cumplimiento Normativo Banxico Circular 14/2017
-      </div>
+
     </div>
   </footer>
 
@@ -740,98 +977,95 @@
 
     function generateRandomClabe(bankCode) {
       const plaza = "180";
-      // Generamos 11 dígitos aleatorios asegurando que tenga ceros a la izquierda si es necesario
       let account = Math.floor(Math.random() * 100000000000).toString().padStart(11, '0');
       let raw17 = bankCode + plaza + account;
-
-      // Algoritmo oficial de validación CLABE (Pesos: 3, 7, 1)
       const weights = [3, 7, 1];
       let sum = 0;
-
       for (let i = 0; i < 17; i++) {
         let digit = parseInt(raw17.charAt(i), 10);
         let weight = weights[i % 3];
         sum += (digit * weight) % 10;
       }
-
       let checkDigit = (10 - (sum % 10)) % 10;
-
       return raw17 + checkDigit;
     }
 
-    const tabBtnForm = document.getElementById('tabBtnForm');
-    const tabBtnJson = document.getElementById('tabBtnJson');
-    const tabContentForm = document.getElementById('tabContentForm');
-    const tabContentJson = document.getElementById('tabContentJson');
+    // Tabs Logic
+    const tabs = [
+      { btn: document.getElementById('tabBtnForm'), content: document.getElementById('tabContentForm') },
+      { btn: document.getElementById('tabBtnVnt'), content: document.getElementById('tabContentVnt') },
+      { btn: document.getElementById('tabBtnJson'), content: document.getElementById('tabContentJson') }
+    ];
 
-    tabBtnForm.addEventListener('click', () => {
-      tabBtnForm.classList.add('border-blue-600', 'text-blue-600');
-      tabBtnForm.classList.remove('border-transparent', 'text-slate-500');
-      tabBtnJson.classList.remove('border-blue-600', 'text-blue-600');
-      tabBtnJson.classList.add('border-transparent', 'text-slate-500');
-      tabContentForm.classList.remove('hidden');
-      tabContentJson.classList.add('hidden');
-    });
+    function activateTab(activeIndex) {
+      tabs.forEach((tab, index) => {
+        if (!tab.btn || !tab.content) return;
 
-    tabBtnJson.addEventListener('click', () => {
-      syncFormToJson();
-      tabBtnJson.classList.add('border-blue-600', 'text-blue-600');
-      tabBtnJson.classList.remove('border-transparent', 'text-slate-500');
-      tabBtnForm.classList.remove('border-blue-600', 'text-blue-600');
-      tabBtnForm.classList.add('border-transparent', 'text-slate-500');
-      tabContentJson.classList.remove('hidden');
-      tabContentForm.classList.add('hidden');
-    });
+        if (index === activeIndex) {
+          // Encendemos la pestaña seleccionada
+          tab.btn.classList.add('border-blue-600', 'text-blue-600');
+          tab.btn.classList.remove('border-transparent', 'text-slate-500');
+          tab.content.classList.remove('hidden');
 
-    document.getElementById('btnGenerateUUID').addEventListener('click', () => {
+          // Si el usuario entra a la pestaña JSON (índice 2), sincronizamos los datos primero
+          if (activeIndex === 2) syncFormToJson();
+        } else {
+          // Apagamos las demás pestañas
+          tab.btn.classList.remove('border-blue-600', 'text-blue-600');
+          tab.btn.classList.add('border-transparent', 'text-slate-500');
+          tab.content.classList.add('hidden');
+        }
+      });
+    }
+
+    // Asignamos los eventos de clic a cada botón usando el Optional Chaining (?.)
+    tabs[0].btn?.addEventListener('click', () => activateTab(0));
+    tabs[1].btn?.addEventListener('click', () => activateTab(1));
+    tabs[2].btn?.addEventListener('click', () => activateTab(2));
+
+    // Botones de autogeneración
+    document.getElementById('btnGenerateUUID')?.addEventListener('click', () => {
       document.getElementById('idempotencyKey').value = generateUUID();
     });
 
-    document.getElementById('btnGenClabeEmisor').addEventListener('click', () => {
+    document.getElementById('btnGenClabeEmisor')?.addEventListener('click', () => {
       const bank = document.getElementById('emisorInstitucion').value;
       document.getElementById('emisorCuenta').value = generateRandomClabe(bank);
     });
 
-    document.getElementById('btnGenClabeReceptor').addEventListener('click', () => {
+    document.getElementById('btnGenClabeReceptor')?.addEventListener('click', () => {
       const bank = document.getElementById('receptorInstitucion').value;
       document.getElementById('receptorCuenta').value = generateRandomClabe(bank);
     });
 
-    document.getElementById('btnGenRef').addEventListener('click', () => {
+    document.getElementById('btnGenRef')?.addEventListener('click', () => {
       const rand = Math.floor(1000 + Math.random() * 9000);
       const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      // Generamos un string 100% alfanumérico sin guiones
       document.getElementById('pagoReferencia').value = `REF${date}${rand}`;
     });
 
-    document.getElementById('btnFormatJson').addEventListener('click', (e) => {
+    // Botones de utilidad
+    document.getElementById('btnFormatJson')?.addEventListener('click', (e) => {
       const btn = e.target;
       const originalText = btn.innerText;
       const jsonInput = document.getElementById('rawJsonInput');
-
       try {
-        // Intenta parsear y formatear el JSON con indentación de 2 espacios
         const parsed = JSON.parse(jsonInput.value);
         jsonInput.value = JSON.stringify(parsed, null, 2);
-
-        // Retroalimentación visual de éxito
         btn.innerText = "¡Formateado!";
         btn.classList.add("text-emerald-600");
         btn.classList.remove("text-blue-600");
-
         setTimeout(() => {
           btn.innerText = originalText;
           btn.classList.add("text-blue-600");
           btn.classList.remove("text-emerald-600");
         }, 1500);
-
       } catch (error) {
-        // Muestra el error exacto si el JSON tiene un fallo de sintaxis
         alert("El contenido actual no es un JSON válido.\n\nDetalle técnico: " + error.message);
       }
     });
 
-    document.getElementById('btnCopyJson').addEventListener('click', () => {
+    document.getElementById('btnCopyJson')?.addEventListener('click', () => {
       const jsonText = document.getElementById('responseJsonViewer').innerText;
       navigator.clipboard.writeText(jsonText).then(() => {
         const copyBtnText = document.getElementById('copyBtnText');
@@ -840,7 +1074,7 @@
       });
     });
 
-    document.getElementById('btnClearLogs').addEventListener('click', () => {
+    document.getElementById('btnClearLogs')?.addEventListener('click', () => {
       document.getElementById('logsTableBody').innerHTML = `
         <tr>
           <td colspan="5" class="py-6 text-center text-slate-400 font-sans italic">
@@ -849,11 +1083,10 @@
         </tr>
       `;
     });
-    // --- MAGIA DEL SANDBOX: Autocompletado de Escenarios de Error ---
-    document.getElementById('simulationScenario').addEventListener('change', (e) => {
-      const scenario = e.target.value;
 
-      // 1. Primero, limpiamos la mesa: forzamos datos 100% válidos y sanos
+    // Simulación de Escenarios
+    document.getElementById('simulationScenario')?.addEventListener('change', (e) => {
+      const scenario = e.target.value;
       document.getElementById('btnGenClabeEmisor').click();
       document.getElementById('btnGenClabeReceptor').click();
       document.getElementById('btnGenRef').click();
@@ -863,63 +1096,28 @@
       document.getElementById('emisorNombre').value = "Fintech Solutions SA de CV";
       document.getElementById('emisorInstitucion').value = "801";
 
-      // 2. Aplicamos la mutación exacta para romper la validación de negocio
       switch (scenario) {
-        case 'PRX-001':
-          document.getElementById('emisorCuenta').value = "801180123"; // Longitud incorrecta
-          break;
-
+        case 'PRX-001': document.getElementById('emisorCuenta').value = "801180123"; break;
         case 'PRX-002':
           let clabe = document.getElementById('emisorCuenta').value;
-          // Cambiamos el último dígito a propósito para romper la validación matemática
           let digitoFalso = clabe.charAt(17) === '9' ? '0' : '9';
           document.getElementById('emisorCuenta').value = clabe.substring(0, 17) + digitoFalso;
           break;
-
-        case 'PRX-003':
-          document.getElementById('receptorInstitucion').value = "999"; // Institución falsa
-          break;
-
-        case 'PRX-004':
-          document.getElementById('pagoImporte').value = "0.00"; // Importe no mayor a cero
-          break;
-
-        case 'PRX-005':
-          document.getElementById('pagoImporte').value = "1500000.00"; // Excede el millón
-          break;
-
-        case 'PRX-006':
-          document.getElementById('pagoDivisa').value = "USD"; // Divisa prohibida
-          break;
-
-        case 'PRX-009':
-          // Metemos caracteres especiales para romper la regla alfanumérica
-          document.getElementById('pagoReferencia').value = "REF_INVALIDA_$%&";
-          break;
-
-        case 'PRX-011':
-          document.getElementById('emisorNombre').value = ""; // Campo obligatorio vacío
-          break;
-
-        case 'PRX-013':
-          // Clonamos la cuenta receptora en la emisora
-          document.getElementById('emisorCuenta').value = document.getElementById('receptorCuenta').value;
-          break;
-
+        case 'PRX-003': document.getElementById('receptorInstitucion').value = "999"; break;
+        case 'PRX-004': document.getElementById('pagoImporte').value = "0.00"; break;
+        case 'PRX-005': document.getElementById('pagoImporte').value = "1500000.00"; break;
+        case 'PRX-006': document.getElementById('pagoDivisa').value = "USD"; break;
+        case 'PRX-009': document.getElementById('pagoReferencia').value = "REF_INVALIDA_$%&"; break;
+        case 'PRX-011': document.getElementById('emisorNombre').value = ""; break;
+        case 'PRX-013': document.getElementById('emisorCuenta').value = document.getElementById('receptorCuenta').value; break;
         case 'PRX-030':
-          // Ponemos institución 802, pero dejamos una CLABE que empieza con 801
           document.getElementById('emisorInstitucion').value = "802";
           document.getElementById('emisorCuenta').value = "801180000123456781";
           break;
-
-              // Nota: Los errores de liquidación (PRX-020 al PRX-024) y el flujo NORMAL
-              // no necesitan romper el formulario. El backend los simula al leer el Header.
       }
-
-      // Sincronizamos la vista del JSON crudo para que el usuario vea el cambio
       syncFormToJson();
     });
-    // Mapeo de datos del UI a los DTOs de Spring Boot
+
     function syncFormToJson() {
       const payload = {
         tipoOperacion: "T2T",
@@ -941,11 +1139,12 @@
           nombre: document.getElementById('receptorNombre').value
         }
       };
-      document.getElementById('rawJsonInput').value = JSON.stringify(payload, null, 2);
+      const rawInput = document.getElementById('rawJsonInput');
+      if(rawInput) rawInput.value = JSON.stringify(payload, null, 2);
     }
 
-    // Petición HTTP POST al servidor local
-    document.getElementById('btnExecuteOperation').addEventListener('click', async () => {
+    // Petición principal a la API
+    document.getElementById('btnExecuteOperation')?.addEventListener('click', async () => {
       const btn = document.getElementById('btnExecuteOperation');
       const originalText = btn.innerHTML;
       btn.innerHTML = `<span class="inline-block animate-spin mr-2">⚙️</span> Procesando en API...`;
@@ -957,31 +1156,25 @@
       };
 
       const scenario = document.getElementById('simulationScenario').value;
-      if (scenario !== 'NORMAL') {
-        headers['X-Escenario-Forzado'] = scenario;
-      }
+      if (scenario !== 'NORMAL') headers['X-Escenario-Forzado'] = scenario;
 
-      let requestBody;
+      let requestBody = document.getElementById('rawJsonInput').value;
       const tabJsonActivo = !document.getElementById('tabContentJson').classList.contains('hidden');
 
-      if (tabJsonActivo) {
-        requestBody = document.getElementById('rawJsonInput').value;
-      } else {
+      if (!tabJsonActivo) {
         syncFormToJson();
         requestBody = document.getElementById('rawJsonInput').value;
       }
 
       let trackingKey = "N/A";
-      try {
-        trackingKey = JSON.parse(requestBody).referenciaSeguimiento;
-      } catch(e){}
+      try { trackingKey = JSON.parse(requestBody).referenciaSeguimiento; } catch(e){}
 
       const idempotencyKey = headers['Clave-Idempotencia'];
       const timeString = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
       if (scenario === 'PRX-008') {
         let payload = JSON.parse(requestBody);
-        payload.folioNumerico = 99999999; // Detona PRX-008
+        payload.folioNumerico = 99999999;
         requestBody = JSON.stringify(payload);
       }
 
@@ -1038,22 +1231,20 @@
 
       } catch (error) {
         console.error("Error conectando con la API:", error);
-        alert("Error de red: Verifica que Spring Boot esté corriendo.");
+        alert("Error de red: Verifica que la ruta de tu API en Spring Boot sea correcta y esté corriendo.");
       } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
       }
     });
-    // Inicializar el formulario con datos válidos automáticamente al cargar la página
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('btnGenerateUUID').click();
-      document.getElementById('btnGenClabeEmisor').click();
-      document.getElementById('btnGenClabeReceptor').click();
-      document.getElementById('btnGenRef').click();
 
-      // Sincronizar también el Tab de JSON crudo por si el usuario entra directo ahí
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btnGenerateUUID')?.click();
+      document.getElementById('btnGenClabeEmisor')?.click();
+      document.getElementById('btnGenClabeReceptor')?.click();
+      document.getElementById('btnGenRef')?.click();
       syncFormToJson();
     });
-  </script>
+    </script>
 </body>
 </html>
