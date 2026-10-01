@@ -968,6 +968,7 @@
   <!-- SCRIPT INTERACTIVO Y PUNTOS DE INYECCIÓN   -->
   <!-- ========================================== -->
   <script>
+    // Genera UUID v4
     function generateUUID() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -975,6 +976,7 @@
       });
     }
 
+    // Genera CLABE válida usando algoritmo oficial (módulo 10)
     function generateRandomClabe(bankCode) {
       const plaza = "180";
       let account = Math.floor(Math.random() * 100000000000).toString().padStart(11, '0');
@@ -990,7 +992,7 @@
       return raw17 + checkDigit;
     }
 
-    // Tabs Logic
+    // Lógica de Pestañas (Tabs)
     const tabs = [
       { btn: document.getElementById('tabBtnForm'), content: document.getElementById('tabContentForm') },
       { btn: document.getElementById('tabBtnVnt'), content: document.getElementById('tabContentVnt') },
@@ -1002,15 +1004,12 @@
         if (!tab.btn || !tab.content) return;
 
         if (index === activeIndex) {
-          // Encendemos la pestaña seleccionada
           tab.btn.classList.add('border-blue-600', 'text-blue-600');
           tab.btn.classList.remove('border-transparent', 'text-slate-500');
           tab.content.classList.remove('hidden');
 
-          // Si el usuario entra a la pestaña JSON (índice 2), sincronizamos los datos primero
           if (activeIndex === 2) syncFormToJson();
         } else {
-          // Apagamos las demás pestañas
           tab.btn.classList.remove('border-blue-600', 'text-blue-600');
           tab.btn.classList.add('border-transparent', 'text-slate-500');
           tab.content.classList.add('hidden');
@@ -1018,12 +1017,11 @@
       });
     }
 
-    // Asignamos los eventos de clic a cada botón usando el Optional Chaining (?.)
     tabs[0].btn?.addEventListener('click', () => activateTab(0));
     tabs[1].btn?.addEventListener('click', () => activateTab(1));
     tabs[2].btn?.addEventListener('click', () => activateTab(2));
 
-    // Botones de autogeneración
+    // Botones de autogeneración (T2T)
     document.getElementById('btnGenerateUUID')?.addEventListener('click', () => {
       document.getElementById('idempotencyKey').value = generateUUID();
     });
@@ -1042,6 +1040,18 @@
       const rand = Math.floor(1000 + Math.random() * 9000);
       const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
       document.getElementById('pagoReferencia').value = `REF${date}${rand}`;
+    });
+
+    // Botones de autogeneración (Ventanilla - VNT)
+    document.getElementById('btnGenClabeReceptorVnt')?.addEventListener('click', () => {
+      const bank = document.getElementById('vntReceptorInstitucion').value;
+      document.getElementById('vntReceptorCuenta').value = generateRandomClabe(bank);
+    });
+
+    document.getElementById('btnGenRefVnt')?.addEventListener('click', () => {
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      document.getElementById('vntPagoReferencia').value = `VNT${date}${rand}`; // Sin guiones
     });
 
     // Botones de utilidad
@@ -1076,21 +1086,23 @@
 
     document.getElementById('btnClearLogs')?.addEventListener('click', () => {
       document.getElementById('logsTableBody').innerHTML = `
-        <tr>
-          <td colspan="5" class="py-6 text-center text-slate-400 font-sans italic">
-            Consola limpia. No hay peticiones registradas en este momento.
-          </td>
-        </tr>
-      `;
+      <tr>
+        <td colspan="5" class="py-6 text-center text-slate-400 font-sans italic">
+          Consola limpia. No hay peticiones registradas en este momento.
+        </td>
+      </tr>
+    `;
     });
 
     // Simulación de Escenarios
     document.getElementById('simulationScenario')?.addEventListener('change', (e) => {
       const scenario = e.target.value;
-      document.getElementById('btnGenClabeEmisor').click();
-      document.getElementById('btnGenClabeReceptor').click();
-      document.getElementById('btnGenRef').click();
-      document.getElementById('btnGenerateUUID').click();
+
+      // Restablece valores T2T
+      document.getElementById('btnGenClabeEmisor')?.click();
+      document.getElementById('btnGenClabeReceptor')?.click();
+      document.getElementById('btnGenRef')?.click();
+      document.getElementById('btnGenerateUUID')?.click();
       document.getElementById('pagoImporte').value = "1250.00";
       document.getElementById('pagoDivisa').value = "MXN";
       document.getElementById('emisorNombre').value = "Fintech Solutions SA de CV";
@@ -1118,27 +1130,59 @@
       syncFormToJson();
     });
 
+    // Mapeo dinámico dependiente de la pestaña activa
     function syncFormToJson() {
-      const payload = {
-        tipoOperacion: "T2T",
-        referenciaSeguimiento: document.getElementById('pagoReferencia').value,
-        concepto: document.getElementById('pagoConcepto').value,
-        folioNumerico: Math.floor(Math.random() * 9000) + 1000,
-        importe: {
-          valor: parseFloat(document.getElementById('pagoImporte').value) || 0.00,
-          divisa: document.getElementById('pagoDivisa').value
-        },
-        emisor: {
-          institucion: document.getElementById('emisorInstitucion').value,
-          cuenta: document.getElementById('emisorCuenta').value,
-          nombre: document.getElementById('emisorNombre').value
-        },
-        receptor: {
-          institucion: document.getElementById('receptorInstitucion').value,
-          cuenta: document.getElementById('receptorCuenta').value,
-          nombre: document.getElementById('receptorNombre').value
-        }
-      };
+      const isVntActive = !document.getElementById('tabContentVnt')?.classList.contains('hidden');
+      let payload;
+
+      if (isVntActive) {
+        payload = {
+          tipoOperacion: "VNT",
+          referenciaSeguimiento: document.getElementById('vntPagoReferencia').value,
+          concepto: document.getElementById('vntPagoConcepto').value,
+          folioNumerico: Math.floor(Math.random() * 9000) + 1000,
+          importe: {
+            valor: parseFloat(document.getElementById('vntPagoImporte').value) || 0.00,
+            divisa: document.getElementById('vntPagoDivisa').value
+          },
+          emisor: {
+            institucion: document.getElementById('vntEmisorInstitucion').value,
+            sucursal: document.getElementById('vntEmisorInstitucion').value,
+            nombre: document.getElementById('vntEmisorNombre').value,
+            documentoIdentidad: {
+              tipo: document.getElementById('vntEmisorTipoId').value,
+              numero: document.getElementById('vntEmisorNumId').value
+            }
+          },
+          receptor: {
+            institucion: document.getElementById('vntReceptorInstitucion').value,
+            cuenta: document.getElementById('vntReceptorCuenta').value,
+            nombre: document.getElementById('vntReceptorNombre').value
+          }
+        };
+      } else {
+        payload = {
+          tipoOperacion: "T2T",
+          referenciaSeguimiento: document.getElementById('pagoReferencia').value,
+          concepto: document.getElementById('pagoConcepto').value,
+          folioNumerico: Math.floor(Math.random() * 9000) + 1000,
+          importe: {
+            valor: parseFloat(document.getElementById('pagoImporte').value) || 0.00,
+            divisa: document.getElementById('pagoDivisa').value
+          },
+          emisor: {
+            institucion: document.getElementById('emisorInstitucion').value,
+            cuenta: document.getElementById('emisorCuenta').value,
+            nombre: document.getElementById('emisorNombre').value
+          },
+          receptor: {
+            institucion: document.getElementById('receptorInstitucion').value,
+            cuenta: document.getElementById('receptorCuenta').value,
+            nombre: document.getElementById('receptorNombre').value
+          }
+        };
+      }
+
       const rawInput = document.getElementById('rawJsonInput');
       if(rawInput) rawInput.value = JSON.stringify(payload, null, 2);
     }
@@ -1186,22 +1230,38 @@
         });
 
         const responseData = await response.json();
-        const isSuccess = response.ok;
-        const speiCode = responseData.estadoActual || (isSuccess ? 'S03' : 'S04');
+        const isHttpSuccess = response.ok;
+
+        // Determinar el código real devuelto por el backend
+        const speiCode = responseData.estadoActual || (isHttpSuccess ? 'S03' : 'S04');
+        const hasError = responseData.codigoError != null || speiCode === 'S04' || speiCode === 'S05';
+
         const httpBadge = document.getElementById('httpStatusBadge');
         const speiBadge = document.getElementById('speiStatusBadge');
 
-        if (isSuccess) {
-          httpBadge.className = "inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300";
-          httpBadge.innerText = `HTTP ${response.status} OK`;
-          speiBadge.className = "inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs";
-          speiBadge.innerText = `🟢 ${speiCode} Liquidado`;
-        } else {
-          httpBadge.className = "inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300";
-          httpBadge.innerText = `HTTP ${response.status} Error`;
-          speiBadge.className = "inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 shadow-xs";
-          speiBadge.innerText = `🔴 Error: ${responseData.codigoError || speiCode}`;
+        // Lógica visual condicional
+        let httpColor = isHttpSuccess ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-rose-100 text-rose-800 border-rose-300';
+        let speiColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        let speiIcon = '🟢';
+        let speiText = speiCode;
+
+        if (hasError) {
+          speiColor = 'bg-rose-50 text-rose-700 border-rose-200';
+          speiIcon = '🔴';
+          speiText = speiCode === 'S04' ? 'S04 Devuelto' : (speiCode === 'S05' ? 'S05 Rechazado' : speiCode);
+        } else if (speiCode === 'S02') {
+          speiColor = 'bg-amber-50 text-amber-700 border-amber-200';
+          speiIcon = '🟡';
+          speiText = 'S02 En Proceso';
+        } else if (speiCode === 'S03') {
+          speiText = 'S03 Liquidado';
         }
+
+        httpBadge.className = `inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border ${httpColor}`;
+        httpBadge.innerText = `HTTP ${response.status} ${isHttpSuccess ? 'OK' : 'Error'}`;
+
+        speiBadge.className = `inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border shadow-xs ${speiColor}`;
+        speiBadge.innerText = `${speiIcon} ${responseData.codigoError ? responseData.codigoError : speiText}`;
 
         document.getElementById('responseJsonViewer').innerHTML = `<code>${JSON.stringify(responseData, null, 2)}</code>`;
 
@@ -1214,13 +1274,13 @@
           <td class="py-3 px-4 text-slate-600 font-sans">${timeString}</td>
           <td class="py-3 px-4 text-blue-600 font-medium font-mono">${trackingKey}</td>
           <td class="py-3 px-4">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${isSuccess ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${httpColor}">
               ${response.status}
             </span>
           </td>
           <td class="py-3 px-4">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${isSuccess ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
-              ${speiCode}
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${speiColor}">
+              ${responseData.codigoError ? responseData.codigoError : speiText}
             </span>
           </td>
           <td class="py-3 px-4 text-slate-400 truncate max-w-[180px]" title="${idempotencyKey}">
@@ -1238,13 +1298,18 @@
       }
     });
 
+    // Disparadores iniciales al cargar la página
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('btnGenerateUUID')?.click();
       document.getElementById('btnGenClabeEmisor')?.click();
       document.getElementById('btnGenClabeReceptor')?.click();
       document.getElementById('btnGenRef')?.click();
+
+      document.getElementById('btnGenClabeReceptorVnt')?.click();
+      document.getElementById('btnGenRefVnt')?.click();
+
       syncFormToJson();
     });
-    </script>
+  </script>
 </body>
 </html>

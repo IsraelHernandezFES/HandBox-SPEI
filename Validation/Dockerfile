@@ -1,14 +1,12 @@
-# 1. Elige una imagen base oficial con Java (JRE 17)
-FROM eclipse-temurin:17-jre-alpine
-
-# 2. Define el directorio de trabajo dentro del contenedor
+# Etapa 1: Compilación con Maven
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# 3. Copia el archivo JAR generado (reemplaza 'mi-aplicacion.jar' por el nombre real que se generó en tu carpeta target)
-COPY target/Validation-0.0.1-SNAPSHOT.jar app.jar
-
-# 4. Expone el puerto de Spring Boot
+# Etapa 2: Imagen final ligera para correr la app
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/Validation-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
-
-# 5. Comando para ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]
