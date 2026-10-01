@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Handbox SPEI - API Validator</title>
+  <title>Sandbox SPEI - API Validator</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Inter & JetBrains Mono -->
@@ -158,35 +158,38 @@
             Simular Escenario
           </label>
           <div class="relative">
-            <select
-                    id="simulationScenario"
-                    name="simulationScenario"
-                    class="block w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none transition appearance-none cursor-pointer pr-10"
-            >
-              <option value="NORMAL" selected>Ninguno (Flujo Normal)</option>
+            <select id="simulationScenario" class="w-full text-xs rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
+              <option value="NORMAL">Operación Normal (Exitoso S03)</option>
               <optgroup label="Errores Estructurales y de Formato">
                 <option value="PRX-001">PRX-001 (Cuenta no tiene 18 dígitos)</option>
                 <option value="PRX-002">PRX-002 (Dígito verificador incorrecto)</option>
                 <option value="PRX-004">PRX-004 (Importe no mayor a cero)</option>
                 <option value="PRX-005">PRX-005 (Importe excede límite o decimales)</option>
                 <option value="PRX-006">PRX-006 (Divisa distinta a MXN)</option>
-                <option value="PRX-007">PRX-007 (Concepto inválido o faltante)</option>
+                <option value="PRX-007">PRX-007 (Concepto vacío o inválido)</option>
                 <option value="PRX-008">PRX-008 (Folio numérico fuera de rango)</option>
                 <option value="PRX-009">PRX-009 (Referencia de seguimiento inválida)</option>
                 <option value="PRX-011">PRX-011 (Campo obligatorio faltante)</option>
+                <option value="PRX-012">PRX-012 (Campo prohibido presente)</option>
+                <option value="PRX-031">PRX-031 (Tipo de operación inválido)</option>
               </optgroup>
               <optgroup label="Errores de Negocio e Integridad">
                 <option value="PRX-003">PRX-003 (Institución inexistente)</option>
                 <option value="PRX-010">PRX-010 (Referencia registrada previamente)</option>
                 <option value="PRX-013">PRX-013 (Cuenta ordenante igual a beneficiaria)</option>
+                <option value="PRX-014">PRX-014 (Transición de estado prohibida)</option>
                 <option value="PRX-015">PRX-015 (Idempotencia con cuerpo distinto)</option>
                 <option value="PRX-030">PRX-030 (Prefijo de cuenta no coincide)</option>
               </optgroup>
               <optgroup label="Errores de Liquidación y Simulación">
-                <option value="PRX-020">PRX-020 (Fondos insuficientes)</option>>
+                <option value="PRX-020">PRX-020 (Fondos insuficientes)</option>
+                <option value="PRX-021">PRX-021 (Cuenta receptora inexistente)</option>
                 <option value="PRX-022">PRX-022 (Institución receptora no disponible)</option>
                 <option value="PRX-023">PRX-023 (Sin respuesta de institución receptora)</option>
                 <option value="PRX-024">PRX-024 (Operación marcada para investigación)</option>
+              </optgroup>
+              <optgroup label="Modo Avanzado">
+                <option value="FRANKENSTEIN">Caso Frankenstein (Múltiples errores simultáneos)</option>
               </optgroup>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
@@ -540,7 +543,6 @@
             <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <span>Latencia simulada promedio de respuesta: ~120ms</span>
           </div>
 
           <button 
@@ -992,6 +994,23 @@
       return raw17 + checkDigit;
     }
 
+    // Genera CLABE inyectando un patrón específico en los dígitos 14 a 17
+    function generateClabeWithPattern(bankCode, pattern) {
+      const plaza = "180";
+      // Banco(3) + Plaza(3) + Random(7) + Patron(4) = 17 dígitos
+      let randomAcc = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+      let raw17 = bankCode + plaza + randomAcc + pattern;
+      const weights = [3, 7, 1];
+      let sum = 0;
+      for (let i = 0; i < 17; i++) {
+        let digit = parseInt(raw17.charAt(i), 10);
+        let weight = weights[i % 3];
+        sum += (digit * weight) % 10;
+      }
+      let checkDigit = (10 - (sum % 10)) % 10;
+      return raw17 + checkDigit;
+    }
+
     // Lógica de Pestañas (Tabs)
     const tabs = [
       { btn: document.getElementById('tabBtnForm'), content: document.getElementById('tabContentForm') },
@@ -1098,7 +1117,7 @@
     document.getElementById('simulationScenario')?.addEventListener('change', (e) => {
       const scenario = e.target.value;
 
-      // Restablece valores T2T
+      // Restablece valores base T2T limpios
       document.getElementById('btnGenClabeEmisor')?.click();
       document.getElementById('btnGenClabeReceptor')?.click();
       document.getElementById('btnGenRef')?.click();
@@ -1107,6 +1126,7 @@
       document.getElementById('pagoDivisa').value = "MXN";
       document.getElementById('emisorNombre').value = "Fintech Solutions SA de CV";
       document.getElementById('emisorInstitucion').value = "801";
+      document.getElementById('pagoConcepto').value = "Pago de Honorarios Servicios API"; // Valor por defecto
 
       switch (scenario) {
         case 'PRX-001': document.getElementById('emisorCuenta').value = "801180123"; break;
@@ -1119,12 +1139,44 @@
         case 'PRX-004': document.getElementById('pagoImporte').value = "0.00"; break;
         case 'PRX-005': document.getElementById('pagoImporte').value = "1500000.00"; break;
         case 'PRX-006': document.getElementById('pagoDivisa').value = "USD"; break;
+        case 'PRX-007': document.getElementById('pagoConcepto').value = ""; break;
         case 'PRX-009': document.getElementById('pagoReferencia').value = "REF_INVALIDA_$%&"; break;
         case 'PRX-011': document.getElementById('emisorNombre').value = ""; break;
+        case 'PRX-012':
+          // Lógica de campo prohibido manual si es necesaria
+          break;
         case 'PRX-013': document.getElementById('emisorCuenta').value = document.getElementById('receptorCuenta').value; break;
+
+              // --- ERRORES DE LIQUIDACIÓN Y SIMULACIÓN (CON PATRONES EN CLABE) ---
+        case 'PRX-020':
+          document.getElementById('receptorCuenta').value = generateClabeWithPattern(document.getElementById('receptorInstitucion').value, "9002");
+          break;
+        case 'PRX-021':
+          document.getElementById('receptorCuenta').value = generateClabeWithPattern(document.getElementById('receptorInstitucion').value, "9003");
+          break;
+        case 'PRX-022':
+          document.getElementById('receptorCuenta').value = generateClabeWithPattern(document.getElementById('receptorInstitucion').value, "9004");
+          break;
+        case 'PRX-023':
+          document.getElementById('receptorCuenta').value = generateClabeWithPattern(document.getElementById('receptorInstitucion').value, "9005");
+          break;
+        case 'PRX-024':
+          document.getElementById('receptorCuenta').value = generateClabeWithPattern(document.getElementById('receptorInstitucion').value, "9006");
+          break;
+
         case 'PRX-030':
           document.getElementById('emisorInstitucion').value = "802";
           document.getElementById('emisorCuenta').value = "801180000123456781";
+          break;
+        case 'PRX-031':
+          break;
+
+        case 'FRANKENSTEIN':
+          document.getElementById('pagoImporte').value = "-100.00";
+          document.getElementById('pagoDivisa').value = "CAD";
+          document.getElementById('pagoConcepto').value = "";
+          document.getElementById('emisorNombre').value = "";
+          document.getElementById('emisorCuenta').value = "123";
           break;
       }
       syncFormToJson();
