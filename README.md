@@ -1,4 +1,4 @@
-# Handbox SPEI - API de Validación & Sandbox Visual
+# Sandbox SPEI - API de Validación & Sandbox Visual
 
 Una plataforma robusta desarrollada en Spring Boot y JavaScript puro para la simulación, validación y procesamiento de transferencias tipo SPEI (Sistema de Pagos Electrónicos Interbancarios).
 
